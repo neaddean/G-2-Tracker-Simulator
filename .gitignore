@@ -11,6 +11,10 @@
 !vhdl/
 !ipcore_dir/
 !src/
+!src/*
+!src/*/roms/
+!src/*/roms/*
+src/*.pyc
 !*.vhd
 !*.vho
 !*.xco
