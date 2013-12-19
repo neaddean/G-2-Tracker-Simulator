@@ -12,8 +12,7 @@
 !ipcore_dir/
 !src/
 !src/*
-!src/*/roms/
-!src/*/roms/*
+!src/roms/*.psm
 src/*.pyc
 !*.vhd
 !*.vho

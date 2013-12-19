@@ -77,8 +77,8 @@ begin
     end if;
   end process go_count;
 
-  TP9 <= '1' when go_counter = "000000000000000000000" else '0';
---TP9<= initiate;
+  --TP9 <= '1' when go_counter = "000000000000000000000" else '0';
+  TP9<= initiate;
 
 
   enable_pros : process (CLK)
