@@ -6,7 +6,7 @@
 -- Author     :   <dean@weber>
 -- Company    : 
 -- Created    : 2013-11-06
--- Last update: 2013-12-05
+-- Last update: 2013-12-19
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -77,13 +77,15 @@ architecture Behavioral of top is
       do_once                   : out    std_logic;
       start_time                : out    time_array;
       TP8                       : out    std_logic;
-      period                    : out    period);
+      cperiod                    : out    period;
+      pulse_period              : out    period);
   end component;
 
-  signal initiate   : std_logic;
-  signal start_time : time_array;
-  signal cperiod    : period := ((others => (others => '1')));
-  signal do_once    : std_logic;
+  signal initiate     : std_logic;
+  signal start_time   : time_array;
+  signal cperiod      : period := ((others => (others => '1')));
+  signal pulse_period : period := ("00010011", "00010010", "11010000");
+  signal do_once      : std_logic;
 
   component fullpulsegen
     port (
@@ -93,7 +95,8 @@ architecture Behavioral of top is
       do_once       : in  std_logic;
       CLK           : in  std_logic;
       TP6, TP7, TP9 : out std_logic;
-      cperiod       : in  period);
+      cperiod       : in  period;
+		pulse_period  : in  period);
   end component;
 
   --component pulsegen
@@ -122,31 +125,33 @@ begin
   -- instance "uart_top_2"
   uart_top_1 : uart_top
     port map (
-      clk        => clk25,
-      uart_tx    => uart_tx,
-      uart_rx    => uart_rx,
-      LED        => LED,
-      spi_clk    => spi_clk,
-      spi_mosi   => spi_mosi,
-      do_once    => do_once,
-      spi_cs     => spi_cs,
-      initiate   => initiate,
-      start_time => start_time,
-      TP8        => TP8,
-      period     => cperiod);
+      clk          => clk25,
+      uart_tx      => uart_tx,
+      uart_rx      => uart_rx,
+      LED          => LED,
+      spi_clk      => spi_clk,
+      spi_mosi     => spi_mosi,
+      do_once      => do_once,
+      spi_cs       => spi_cs,
+      initiate     => initiate,
+      start_time   => start_time,
+      TP8          => TP8,
+      cperiod       => cperiod,
+      pulse_period => pulse_period);
 
   --instance "fullpulsegen_1"
   fullpulsegen_1 : fullpulsegen
     port map (
-      channel    => channels,
-      start_time => start_time,
-      do_once    => do_once,
-      initiate   => initiate,
-      CLK        => CLK125,
-      TP6        => TP6,
-      TP7        => TP7,
-      TP9        => TP9,
-      cperiod    => cperiod);
+      channel      => channels,
+      start_time   => start_time,
+      do_once      => do_once,
+      initiate     => initiate,
+      CLK          => CLK125,
+      TP6          => TP6,
+      TP7          => TP7,
+      TP9          => TP9,
+      cperiod      => cperiod,
+      pulse_period => pulse_period);
 
 
 ---- instance "pulsegen_1"

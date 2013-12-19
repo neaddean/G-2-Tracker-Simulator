@@ -38,7 +38,8 @@ entity uart_top is
     do_once                   : out    std_logic;
     start_time                : out    time_array;
     TP8                       : out    std_logic;
-    period                    : out    period);
+    cperiod                   : out    period;
+    pulse_period              : out    period); 
 end uart_top;
 
 architecture Behavioral of uart_top is
@@ -301,8 +302,8 @@ begin
                     in_port(4) <= uart_rx_half_full;
                     in_port(5) <= uart_rx_full;
 
-                    -- Read UART_RX6 data at port address 01 hex
-                    -- (see 'buffer_read' pulse generation below) 
+        -- Read UART_RX6 data at port address 01 hex
+        -- (see 'buffer_read' pulse generation below) 
         when '1' => in_port <= uart_rx_data_out;
 
         when others => in_port <= "XXXXXXXX";
@@ -345,15 +346,18 @@ begin
             when "0001001" => do_once  <= out_port(0);
             when "0001000" => initiate <= out_port(0);
                               TP8 <= out_port(0);
-            when "1000000" => period(2) <= out_port;
-            when "1000001" => period(1) <= out_port;
-            when "1000010" => period(0) <= out_port;
-            when others    => out_port  <= "XXXXXXXX";
+            when "1000000" => cperiod(2)      <= out_port;
+            when "1000001" => cperiod(1)      <= out_port;
+            when "1000010" => cperiod(0)      <= out_port;
+            when "1000100" => pulse_period(2) <= out_port;
+            when "1000101" => pulse_period(1) <= out_port;
+            when "1000110" => pulse_period(0) <= out_port;
+            when others    => out_port        <= "XXXXXXXX";
           end case;
         elsif port_id(7) = '1' then
           
           start_time(conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
- <= out_port;
+            <= out_port;
         end if;
       end if;
     end if;

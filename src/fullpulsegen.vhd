@@ -4,7 +4,7 @@
 ---- 
 ---- Create Date:    11:23:34 10/17/2013 
 ---- Design Name: 
----- Module Name:    pulsegen - Behavioral 
+---- Module Name:    fullpulsegen - Behavioral 
 ---- Project Name: 
 ---- Target Devices: 
 ---- Tool versions: 
@@ -39,7 +39,8 @@ entity fullpulsegen is
     initiate      : in  std_logic;
     CLK           : in  std_logic;
     TP6, TP7, TP9 : out std_logic;
-    cperiod       : in  period);
+    cperiod       : in  period;
+    pulse_period  : in  period);
 
 end fullpulsegen;
 
@@ -51,7 +52,7 @@ architecture Behavioral of fullpulsegen is
   signal channel_reg  : std_logic_vector (15 downto 0) := (others => '0');
   signal start        : std_logic                      := '0';
   signal go_enable    : std_logic                      := '0';
-  signal go_counter   : std_logic_vector (20 downto 0) := (others => '0');
+  signal go_counter   : std_logic_vector (23 downto 0) := (others => '0');
 
   constant GO_CNTR_MAX : std_logic_vector (20 downto 0) := "100110001001011010000";
   --constant GO_CNTR_MAX : std_logic_vector (20 downto 0) := "111111111111111111111";
@@ -63,23 +64,21 @@ begin
   go_count : process (CLK)
   begin  -- process go_count
     if rising_edge(CLK) then
-      if go_counter = GO_CNTR_MAX then
+      if go_counter = pulse_period(2)(3 downto 0) & pulse_period(1) & pulse_period(0) then
         if initiate = '1' then
           go_enable <= '1';
         elsif initiate = '0' then
           go_enable <= '0';
         end if;
-        go_counter <= "000000000000000000000";
+        go_counter <= (others => '0');
       else
         go_counter <= go_counter + 1;
         go_enable  <= '0';
       end if;
     end if;
   end process go_count;
-
-  --TP9 <= '1' when go_counter = "000000000000000000000" else '0';
-  TP9<= initiate;
-
+ 
+  TP9 <= initiate;
 
   enable_pros : process (CLK)
   begin

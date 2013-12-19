@@ -1,0 +1,584 @@
+NAMEREG sD, COUNTER1
+NAMEREG sC, SPI_BIT_COUNT
+NAMEREG sA, ADDRLOW
+NAMEREG sB, ADDRHIGH
+NAMEREG s9, RXREG
+NAMEREG s8, SPI_HIGH
+NAMEREG s7, SPI_LOW
+NAMEREG s6, SPI_DATA
+NAMEREG s5, LEDCOUNT
+NAMEREG s4, BUFPTR
+
+
+	;; input ports
+CONSTANT UART_STATUS_PORT, 00000000'b
+CONSTANT UART_RX_PORT,	   00000001'b
+
+	;; constant out ports
+CONSTANT UART_TX_RESET_PORT, 00
+
+	;; output ports
+CONSTANT INITPORT    , 00001000'b
+CONSTANT ONCEPORT    , 00001001'b
+CONSTANT UART_TX_PORT, 00000001'b
+CONSTANT LED_PORT,     00000010'b
+CONSTANT SPI_PORT,     00000011'b
+CONSTANT PERIOD_PORT0, 01000000'b
+CONSTANT PERIOD_PORT1, 01000001'b
+CONSTANT PERIOD_PORT2, 01000010'b
+CONSTANT PULSE_PERIOD_PORT0, 01000100'b
+CONSTANT PULSE_PERIOD_PORT1, 01000101'b
+CONSTANT PULSE_PERIOD_PORT2, 01000110'b
+
+	;; spi bits
+CONSTANT spi_clk,  00000001'b ;   spi_clk - bit0 (SPI_output_por0t)
+CONSTANT spi_cs,   00000010'b ;  spi_cs - bit1 (SPI_output_port)
+CONSTANT spi_mosi, 10000000'b ;  spi_mosi - bit7 (SPI_output_port)
+	
+	;; status signals
+CONSTANT UART_TX_FULL,  00000100'b
+CONSTANT UART_RX_READY, 00001000'b
+
+	;; constants
+
+	 OUTPUTK FF, UART_TX_RESET_PORT
+	 OUTPUTK 00, UART_TX_RESET_PORT
+	
+	LOAD s0, 1B
+	CALL send_to_UART
+	LOAD s0, 5B
+	CALL send_to_UART
+	LOAD s0, 32
+	CALL send_to_UART
+	LOAD s0, 4A
+	CALL send_to_UART
+
+	;; LOAD ADDRHIGH, dean'upper
+	;; LOAD ADDRLOW, dean'lower
+	;; CALL send_string
+
+	CALL display_help	
+
+	 LOAD SPI_DATA, spi_cs
+	 OUTPUT SPI_DATA, SPI_PORT	;hold spi_cs high
+
+	   CALL ldelay
+	   LOAD SPI_HIGH, 08
+	   LOAD SPI_LOW,  00
+	   CALL send_spi
+    	   LOAD SPI_HIGH, 13
+	   LOAD SPI_LOW,  33
+	   CALL send_spi
+    	   LOAD SPI_HIGH, 2F
+	   LOAD SPI_LOW,  FF
+	   CALL send_spi
+    	   LOAD SPI_HIGH, 3F
+	   LOAD SPI_LOW,  FF
+	   CALL send_spi
+
+		LOAD BUFPTR,   00 ; init buffer pointer to 0
+		LOAD LEDCOUNT, 00 ; init leds to 0
+		LOAD s0, "$"
+		CALL send_to_UART
+		LOAD s0, " "
+		CALL send_to_UART
+STARTLOOP:	OUTPUT LEDCOUNT, LED_PORT
+		INPUT s1, UART_STATUS_PORT
+		TEST  s1, UART_RX_READY
+		JUMP  NC, STARTLOOP
+	
+		INPUT s0, UART_RX_PORT
+		LOAD LEDCOUNT, s0
+	        CALL store_char	;store char in buffer
+		CALL check_special
+		COMPARE s0, FF
+	
+		JUMP STARTLOOP
+
+ldelay:	 LOAD COUNTER1, FF
+	 JUMP DLOOP
+
+sdelay:	LOAD COUNTER1, 40
+	JUMP DLOOP
+
+DLOOP: SUB   COUNTER1, 01
+       JUMP NZ, DLOOP
+       RETURN
+
+send_to_UART: INPUT s1, UART_STATUS_PORT
+	      TEST s1, UART_TX_FULL
+	      JUMP NZ, send_to_UART
+	      OUTPUT s0, UART_TX_PORT
+	      RETURN
+
+	
+send_string: CALL@ (ADDRHIGH, ADDRLOW)
+	     CALL send_to_UART
+	     COMPARE s0, 0D
+	     RETURN Z
+	     ADD ADDRLOW, 01
+	     ADDCY ADDRHIGH, 00
+	     JUMP send_string
+
+
+
+STRING dean$, "Hello, Dean!"
+dean:  LOAD&RETURN s0,dean$
+       LOAD&RETURN s0, 0A
+       LOAD&RETURN s0, 0D
+
+STRING error$, "Error, invalid input."
+error: LOAD&RETURN s0,error$
+       LOAD&RETURN s0, 0A
+       LOAD&RETURN s0, 0D
+
+next_line:    LOAD s0, 0A
+	      OUTPUT s0, UART_TX_PORT
+	      LOAD s0, 0D
+	      OUTPUT s0, UART_TX_PORT
+	      RETURN
+
+error_msg: LOAD ADDRHIGH, error'upper
+	   LOAD ADDRLOW,  error'lower
+	   CALL send_string
+	   LOAD s0, "$"
+           CALL send_to_UART
+	   LOAD s0, " "
+	   CALL send_to_UART
+	   RETURN
+
+
+
+	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; hex to byte utilities from Dan
+
+	upper_case:	COMPARE RXREG, "a"                 ;eliminate character codes below 'a' (61 hex)
+		RETURN C
+		COMPARE RXREG, 7B                  ;eliminate character codes above 'z' (7A hex)
+		RETURN NC
+		AND RXREG, 11011111'b              ;force bit5 Low to convert to upper case
+		RETURN
+
+      ASCII_to_hex: ADD RXREG, B9                      ;test for above ASCII code 46 ('F')
+                    RETURN C
+                    SUB RXREG, E9                      ;normalise 0 to 9 with A-F in 11 to 16 hex
+                    RETURN C                        ;reject below ASCII code 30 ('0')
+                    SUB RXREG, 11                      ;isolate A-F down to 00 to 05 hex
+                    JUMP NC, ASCII_letter
+                    ADD RXREG, 07                      ;test for above ASCII code 46 ('F')
+                    RETURN C
+                    SUB RXREG, F6                      ;convert to range 00 to 09
+                    RETURN 
+      ASCII_letter: ADD RXREG, 0A                      ;convert to range 0A to 0F
+                    RETURN
+;;; ============================================================================
+;;; Convert two bytes of ascii to hex
+	;; return byte in s0, C=1 for sucess, C=0 for failure
+	;; load two ASCII characters in s1,s2
+	;; this uses s3
+;;; ============================================================================
+	HEX_TO_BYTE:	LOAD s0,00		; load s0 with zero
+		LOAD s3,s1		; make local copies of s1
+		SUB s3,30		; Drop s3 to 0-9 if the number was ascii 0-9
+		JUMP C, HEX_TO_BYTE_ERR ; if some lower character, throw an error
+		COMPARE s3,0A		; check for 0-9
+		JUMP C, HEX_TO_BYTE1 	; jump the next byte if s3 < 10
+		SUB s3, 11	     	; Move ASCII A to zero and see if we roll over
+		JUMP C, HEX_TO_BYTE_ERR	; if s3 is between ASCII ranges 0-9 and A-F
+		ADD s3, 0A		; add 10 to bring ascii A-F to dec 10-15
+		COMPARE s3,10		; compare to dec 16
+		JUMP C, HEX_TO_BYTE1	; if less than 16, go to next byte
+		SUB s3,2A		; bring ASCII a-f to dec 0-5
+		JUMP C, HEX_TO_BYTE_ERR ; bring ascii a to zero and see if we roll over
+		ADD s3, 0A		; bring a-f to 10-15
+		COMPARE s3,10		; compare to dec 16
+		JUMP C, HEX_TO_BYTE1	; if less than 16, go to next byte
+		JUMP HEX_TO_BYTE_ERR	; other values are errors
+HEX_TO_BYTE1:	SL0 s3			; bitshift up 4 bits
+		SL0 s3
+		SL0 s3
+		SL0 s3
+		LOAD s0,s3		; save in s0
+		LOAD s3,s2
+		SUB s3,30		; Drop s3 to 0-9 if the number was ascii 0-9
+		JUMP C, HEX_TO_BYTE_ERR ; if some lower character, throw an error
+		COMPARE s3,0A		; check for 0-9
+		JUMP C, HEX_TO_BYTE2 	; jump the next byte if s3 < 10
+		SUB s3, 11	     	; Move ASCII A to zero and see if we roll over
+		JUMP C, HEX_TO_BYTE_ERR	; if s3 is between ASCII ranges 0-9 and A-F
+		ADD s3, 0A		; add 10 to bring ascii A-F to dec 10-15
+		COMPARE s3,10		; compare to dec 16
+		JUMP C, HEX_TO_BYTE2	; if less than 16, go to next byte
+		SUB s3,2A		; bring ASCII a-f to dec 0-5
+		JUMP C, HEX_TO_BYTE_ERR ; bring ascii a to zero and see if we roll over
+		ADD s3, 0A		; bring a-f to 10-15
+		COMPARE s3,10		; compare to dec 16
+		JUMP C, HEX_TO_BYTE2	; if less than 16, go to next byte
+		JUMP HEX_TO_BYTE_ERR	; other values are errors		
+HEX_TO_BYTE2:	ADD s0,s3
+		LOAD s3,01
+		SR0 s3			; load 1 into C for sucess
+		RETURN			;this... will fail if not actually ASCII HEX... need to fix that
+		
+HEX_TO_BYTE_ERR:
+		LOAD s3, 00
+		SR0 s3		; LOAD 0 into C for failure
+		RETURN
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; to store characters
+
+store_char:	STORE s0, (BUFPTR)
+		ADD   BUFPTR, 01
+		RETURN
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; check for special input
+
+check_special:	LOAD s1, BUFPTR
+		SUB s1, 01
+		FETCH s0, (s1) 	; load last char into s0
+
+		COMPARE s0, 0D  ; CR
+		JUMP Z, parse_buffer
+
+	COMPARE s0, 08 		; backspace
+	JUMP    Z, parse_backspace
+	RETURN  C
+
+	CALL    send_to_UART  	; echo
+	RETURN
+
+parse_buffer:
+	CALL    next_line	
+	LOAD	BUFPTR, 00
+	FETCH   s1, (BUFPTR)
+
+	COMPARE s1, "d"
+	JUMP	Z, set_dac
+	COMPARE s1, "c"
+	JUMP	Z, set_channel
+	COMPARE s1, "s"
+	JUMP	Z, fire_once
+	COMPARE	s1, "n"
+	JUMP	Z, rapid_on
+	COMPARE	s1, "m"
+	JUMP	Z ,rapid_off
+	COMPARE s1, "h"
+	JUMP	Z, help_msg
+	COMPARE s1, "a"
+	JUMP	Z, cont_start
+	COMPARE s1, "z"
+	JUMP	Z, cont_stop
+	compare	s1, "p"
+	JUMP	Z, period
+	compare	s1, "t"
+	JUMP	Z, pulse_period
+	
+	CALL    error_msg
+	RETURN
+	
+parse_backspace:
+		LOAD s1, BUFPTR 	; check if there is anything to bs into
+		SUB s1,02		; because we've already moved 1 ahead in MEM_WR_PTR
+		JUMP C, parse_UI_bs_done
+
+		CALL send_to_UART ; backspace
+
+		LOAD s0, " "
+		CALL send_to_UART ; blank
+
+		LOAD s0, 08
+		CALL send_to_UART ; backspace
+		
+		SUB BUFPTR, 01    ; this along with the next line removes the last char from memory
+parse_UI_bs_done:
+		SUB BUFPTR, 01	; remove the bs char from memory
+		LOAD s0, 00
+		RR s0			; set C to zero because there is no new command
+		RETURN
+
+	RETURN
+
+set_dac:
+
+	FETCH 	s1, 01
+	COMPARE s1, " "
+	JUMP	NZ, error_msg
+	
+	FETCH	s1, 02
+	FETCH	s2, 03
+	CALL	HEX_TO_BYTE
+	JUMP	NC, error_msg
+	LOAD	SPI_HIGH, s0
+
+	FETCH	s1, 04
+	FETCH	s2, 05
+	CALL	HEX_TO_BYTE
+	JUMP	NC, error_msg
+	LOAD	SPI_LOW, s0
+	CALL    send_spi
+	JUMP cmd_end
+	
+set_channel:
+
+	;; sE is current port
+	;; sF is address XXAA AAXX
+
+	FETCH	s1, 01
+	COMPARE s1, " "
+	JUMP	NZ, error_msg
+	
+	LOAD	s1, 30
+	FETCH	s2, 02
+	CALL	HEX_TO_BYTE
+	JUMP	NC, error_msg
+
+	SL0	s0		; shift address into place
+	SL0	s0
+	LOAD	sF, s0		; store address
+	
+	LOAD	sE, 00
+	OR	sE, sF
+	OR	sE, 82		; MSB data byte is 10
+
+	FETCH	s1, 03
+	COMPARE s1, " "
+	JUMP	NZ, error_msg
+	
+	LOAD	s1, 30		; don't care about rest!
+	FETCH	s2, 04		; only need first bit
+	CALL	HEX_TO_BYTE
+	JUMP	NC, error_msg
+
+	OUTPUT	s0, (sE)	; output MSB of start_time
+
+	LOAD	sE, 00
+	OR	sE, sF
+	OR	sE, 81		; now make current data byte 01
+
+	FETCH	s1, 05	
+	FETCH	s2, 06			
+	CALL	HEX_TO_BYTE
+	JUMP	NC, error_msg
+
+	OUTPUT	s0,(sE)		; output the middle data byte
+
+	LOAD	sE, 00
+	OR	sE, sF
+	OR	sE, 80		; now make current data byte 00
+
+	FETCH	s1, 07	
+	FETCH	s2, 08			
+	CALL	HEX_TO_BYTE
+	JUMP	NC, error_msg
+
+	OUTPUT	s0,(sE)		; output the least significant data byte
+
+	JUMP 	cmd_end	
+	
+fire_once:
+	LOAD	s0, FF
+	OUTPUT	s0, ONCEPORT
+	LOAD 	s0, 00
+	OUTPUT	s0, ONCEPORT
+	JUMP 	cmd_end
+
+rapid_on:
+	LOAD	s0, FF
+	OUTPUT	s0, ONCEPORT
+	JUMP	cmd_end
+
+rapid_off:	
+	LOAD 	s0, 00
+	OUTPUT	s0, ONCEPORT
+	JUMP 	cmd_end
+
+cont_start:
+	LOAD 	s0, FF
+	OUTPUT	s0, INITPORT
+	JUMP	cmd_end
+
+cont_stop:
+	LOAD 	s0, 00
+	OUTPUT 	s0, INITPORT
+	JUMP	cmd_end
+
+period:
+	FETCH	s1, 01
+	COMPARE s1, " "
+	JUMP	NZ, error_msg
+		
+	LOAD	sE, 40
+	
+	LOAD	s1, 30		; don't care about rest!
+	FETCH	s2, 02		; only need first bit
+	CALL	HEX_TO_BYTE
+	JUMP	NC, error_msg
+
+	OUTPUT	s0, (sE)	; output MSB of period
+
+	ADD	sE, 01
+
+	FETCH	s1, 03	
+	FETCH	s2, 04			
+	CALL	HEX_TO_BYTE
+	JUMP	NC, error_msg
+
+	OUTPUT	s0,(sE)		; output the middle data byte
+
+	ADD	sE, 01
+
+	FETCH	s1, 05	
+	FETCH	s2, 06			
+	CALL	HEX_TO_BYTE
+	JUMP	NC, error_msg
+
+	OUTPUT	s0,(sE)		; output the least significant data byte
+
+	JUMP 	cmd_end
+
+pulse_period:
+	FETCH	s1, 01
+	COMPARE s1, " "
+	JUMP	NZ, error_msg
+		
+	LOAD	sE, 44
+	
+	LOAD	s1, 30		; don't care about rest!
+	FETCH	s2, 02		; only need first bit
+	CALL	HEX_TO_BYTE
+	JUMP	NC, error_msg
+
+	OUTPUT	s0, (sE)	; output MSB of period
+
+	ADD	sE, 01
+
+	FETCH	s1, 03	
+	FETCH	s2, 04			
+	CALL	HEX_TO_BYTE
+	JUMP	NC, error_msg
+
+	OUTPUT	s0,(sE)		; output the middle data byte
+
+	ADD	sE, 01
+
+	FETCH	s1, 05	
+	FETCH	s2, 06			
+	CALL	HEX_TO_BYTE
+	JUMP	NC, error_msg
+
+	OUTPUT	s0,(sE)		; output the least significant data byte
+
+	JUMP 	cmd_end
+
+
+
+help_msg:
+
+	CALL 	display_help
+	JUMP	cmd_end
+
+cmd_end:	LOAD s0, "$"
+		CALL send_to_UART
+		LOAD s0, " "
+		CALL send_to_UART
+		LOAD BUFPTR, 00
+		RETURN
+	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; SPI
+send_spi:  LOAD SPI_BIT_COUNT, 10
+next_bit:  LOAD SPI_DATA, SPI_HIGH
+	   AND SPI_DATA, spi_mosi
+	   OUTPUT SPI_DATA, SPI_PORT
+	   SL0  SPI_LOW
+	   SLA  SPI_HIGH
+	   CALL clock_pulse
+	   SUB SPI_BIT_COUNT, 01
+	   JUMP NZ, next_bit
+	   LOAD SPI_DATA, spi_cs
+	   OR SPI_DATA, spi_clk
+	   OUTPUT SPI_DATA, SPI_PORT
+	   CALL sdelay
+	   RETURN
+
+clock_pulse: OR SPI_DATA, spi_clk
+	     CALL sdelay
+	     OUTPUT SPI_DATA, SPI_PORT
+	     AND SPI_DATA, ~spi_clk
+	     CALL sdelay
+	     OUTPUT SPI_DATA, SPI_PORT
+	     CALL sdelay
+	     RETURN
+	
+
+
+display_help:
+	LOAD ADDRHIGH, help1'upper
+	LOAD ADDRLOW, help1'lower
+	CALL send_string
+	CALL next_line
+	LOAD ADDRHIGH, help2'upper
+	LOAD ADDRLOW, help2'lower
+	CALL send_string
+	LOAD ADDRHIGH, help3'upper
+	LOAD ADDRLOW, help3'lower
+	CALL send_string
+	LOAD ADDRHIGH, help4'upper
+	LOAD ADDRLOW, help4'lower
+	CALL send_string
+	LOAD ADDRHIGH, help5'upper
+	LOAD ADDRLOW, help5'lower
+	CALL send_string
+	LOAD ADDRHIGH, help6'upper
+	LOAD ADDRLOW, help6'lower
+	CALL send_string
+	LOAD ADDRHIGH, help7'upper
+	LOAD ADDRLOW, help7'lower
+	CALL send_string
+	LOAD ADDRHIGH, help8'upper
+	LOAD ADDRLOW, help8'lower
+	CALL send_string
+	CALL next_line
+	RETURN
+
+
+STRING help1$, "              G-2 Flight Tracker Simulator"
+help1: LOAD&RETURN s0,help1$
+       LOAD&RETURN s0, 0A
+       LOAD&RETURN s0, 0D
+
+STRING help2$, "d NXXX         set dac N to XXX/FFF*2.5V"
+help2: LOAD&RETURN s0,help2$
+       LOAD&RETURN s0, 0A
+       LOAD&RETURN s0, 0D
+
+STRING help3$, "c N XXXXX      set channel N start time to XXXXX (17 bits)"
+help3: LOAD&RETURN s0,help3$
+       LOAD&RETURN s0, 0A
+       LOAD&RETURN s0, 0D
+
+STRING help4$, "s              fire pulses once"
+help4: LOAD&RETURN s0,help4$
+       LOAD&RETURN s0, 0A
+       LOAD&RETURN s0, 0D
+
+STRING help5$, "a              start continuous"
+help5: LOAD&RETURN s0,help5$
+       LOAD&RETURN s0, 0A
+       LOAD&RETURN s0, 0D
+
+STRING help6$, "z              stop continuous"
+help6: LOAD&RETURN s0,help6$
+       LOAD&RETURN s0, 0A
+       LOAD&RETURN s0, 0D
+
+STRING help7$, "p XXXXX        set period to XXXXX (17 bits) (8ns res)"
+help7: LOAD&RETURN s0,help7$
+       LOAD&RETURN s0, 0A
+       LOAD&RETURN s0, 0D
+
+STRING help8$, "h              displays this again"
+help8: LOAD&RETURN s0,help8$
+       LOAD&RETURN s0, 0A
+       LOAD&RETURN s0, 0D
