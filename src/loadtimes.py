@@ -116,7 +116,7 @@ while not args.script:
         if rapid:
             print "(rapid on)"
         else:
-            print "(cont off)",
+            print "(cont off)"
     instr = raw_input("$ ").lower()
     if instr == "":
         pass
