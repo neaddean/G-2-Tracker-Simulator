@@ -26,6 +26,7 @@ configfile = open(args.f, "r")
 lines = configfile.read().replace(" ","").split()
 
 channeldata = {}
+channelmemdata = {}
 for i in range(16):
     i = hex(i)[-1]
     channeldata[i] = "00000"
@@ -133,8 +134,19 @@ while not args.script:
         trackersim.write(instr + "\r")
         dacdata[instr[2]] = instr[3:6]
     elif instr[0] == "c":
-        trackersim.write(instr + "\r")
-        channeldata[instr[2]] = instr[4:9]
+        if instr[4:] == "off":
+            channelmemdata[instr[2]] = channeldata[instr[2]]
+            channeldata[instr[2]] = myround(int(p[2:],16)*1000 + 40)
+            trackersim.write("c " + instr[2] + " " + channeldata[instr[2]] + "\r")
+            print "c " + instr[2] + " " + channeldata[instr[2]] + "\r"
+            continue
+        elif instr[4:] == "on":
+            channeldata[instr[2]] = channelmemdata[instr[2]]
+            trackersim.write("c " + instr[2] + " " + channeldata[instr[2]] + "\r")
+            continue
+        newhex = myround(instr[4:])
+        trackersim.write("c " + instr[2] + " " + newhex + "\r")
+        channeldata[instr[2]] = newhex
     elif instr == "s":
         trackersim.write("s" + "\r")
         rapid = False
@@ -145,8 +157,11 @@ while not args.script:
         trackersim.write("m" + "\r")
         rapid = False 
     elif instr[0] == "p":
-        trackersim.write(instr)
-        p = instr
+        newhex = myround(int(instr[2:])*1000)
+        p = "p " + newhex
+        trackersim.write(p)
+        # trackersim.write(instr)
+        # p = instr
     elif instr == "l":
         sorted_ddata = sorted(dacdata.iteritems(), key=operator.itemgetter(0))
         for i, j in sorted_ddata:
