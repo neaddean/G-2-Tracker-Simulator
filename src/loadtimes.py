@@ -84,6 +84,9 @@ if not args.noconfig:
         elif "auto=off" in line:
             auto = False
             break
+        elif "auto=rapid" in line:
+            rapid = True
+            break
 
 sorted_ddata = sorted(dacdata.iteritems(), key=operator.itemgetter(0))
 for i, j in sorted_ddata:
@@ -109,9 +112,12 @@ elif auto == False:
     trackersim.write("z" + "\r")
     print "auto = off"
 
+if rapid == True:
+    trackersim.write("n" + "\r")
+
 while not args.script:
     if auto:
-        print "(cont on)",
+        print "(cont on)"
     else:
         if rapid:
             print "(rapid on)"
@@ -138,7 +144,6 @@ while not args.script:
             channelmemdata[instr[2]] = channeldata[instr[2]]
             channeldata[instr[2]] = myround(int(p[2:],16)*1000 + 40)
             trackersim.write("c " + instr[2] + " " + channeldata[instr[2]] + "\r")
-            print "c " + instr[2] + " " + channeldata[instr[2]] + "\r"
             continue
         elif instr[4:] == "on":
             channeldata[instr[2]] = channelmemdata[instr[2]]
