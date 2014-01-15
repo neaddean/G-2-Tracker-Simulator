@@ -337,26 +337,25 @@ begin
   begin
     if rising_edge(clk) then
       if write_strobe = '1' then
-        if port_id(7) = '0' then
-          case port_id(6 downto 0) is
-            when "0000010" => LED     <= out_port(2 downto 0);
-            when "0000011" => spi_clk <= out_port(0);
-                              spi_cs   <= out_port(1);
-                              spi_mosi <= out_port(7);
-            when "0001001" => do_once  <= out_port(0);
-            when "0001000" => initiate <= out_port(0);
-                              TP8 <= out_port(0);
-            when "1000000" => cperiod(2)      <= out_port;
-            when "1000001" => cperiod(1)      <= out_port;
-            when "1000010" => cperiod(0)      <= out_port;
-            when "1000100" => pulse_period(2) <= out_port;
-            when "1000101" => pulse_period(1) <= out_port;
-            when "1000110" => pulse_period(0) <= out_port;
-            when others    => out_port        <= "XXXXXXXX";
+        if port_id(1 downto 0) = "11" then
+          case port_id(7 downto 2) is
+            when "000000" => LED     <= out_port(2 downto 0);
+            when "000001" => spi_clk <= out_port(0);
+                             spi_cs   <= out_port(1);
+                             spi_mosi <= out_port(7);
+            when "000010" => do_once  <= out_port(0);
+            when "000011" => initiate <= out_port(0);
+                             TP8 <= out_port(0);
+            when "000100" => cperiod(2)      <= out_port;
+            when "000101" => cperiod(1)      <= out_port;
+            when "000110" => cperiod(0)      <= out_port;
+            when "000111" => pulse_period(2) <= out_port;
+            when "001000" => pulse_period(1) <= out_port;
+            when "001001" => pulse_period(0) <= out_port;
+            when others   => out_port        <= "XXXXXXXX";
           end case;
-        elsif port_id(7) = '1' then
-          
-          start_time(conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
+        else
+          start_time(conv_integer(port_id(7 downto 6)), conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
             <= out_port;
         end if;
       end if;
@@ -365,7 +364,7 @@ begin
 
   uart_tx_data_in <= out_port;
 
-  write_to_uart_tx <= '1' when (write_strobe = '1') and (port_id = "00000001")
+  write_to_uart_tx <= '1' when (write_strobe = '1') and (port_id = "10000011")
                       else '0';
 
 --

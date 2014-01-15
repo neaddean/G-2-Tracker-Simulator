@@ -18,18 +18,18 @@ CONSTANT UART_RX_PORT,	   00000001'b
 CONSTANT UART_TX_RESET_PORT, 00
 
 	;; output ports
-CONSTANT INITPORT    , 00001000'b
-CONSTANT ONCEPORT    , 00001001'b
-CONSTANT UART_TX_PORT, 00000001'b
-CONSTANT LED_PORT,     00000010'b
-CONSTANT SPI_PORT,     00000011'b
-CONSTANT PERIOD_PORT0, 01000000'b
-CONSTANT PERIOD_PORT1, 01000001'b
-CONSTANT PERIOD_PORT2, 01000010'b
-CONSTANT PULSE_PERIOD_PORT0, 01000100'b
-CONSTANT PULSE_PERIOD_PORT1, 01000101'b
-CONSTANT PULSE_PERIOD_PORT2, 01000110'b
-
+CONSTANT LED_PORT,     00000011'b
+CONSTANT SPI_PORT,     00000111'b
+CONSTANT ONCEPORT    , 00001011'b
+CONSTANT INITPORT    , 00001111'b
+CONSTANT PERIOD_PORT2, 00010011'b
+CONSTANT PERIOD_PORT1, 00010111'b
+CONSTANT PERIOD_PORT0, 00011011'b
+CONSTANT PULSE_PERIOD_PORT2, 00011111'b
+CONSTANT PULSE_PERIOD_PORT1, 00100011'b
+CONSTANT PULSE_PERIOD_PORT0, 00100111'b
+CONSTANT UART_TX_PORT, 10000011'b
+	
 	;; spi bits
 CONSTANT spi_clk,  00000001'b ;   spi_clk - bit0 (SPI_output_por0t)
 CONSTANT spi_cs,   00000010'b ;  spi_cs - bit1 (SPI_output_port)
@@ -257,7 +257,9 @@ parse_buffer:
 	COMPARE s1, "d"
 	JUMP	Z, set_dac
 	COMPARE s1, "c"
-	JUMP	Z, set_channel
+	JUMP	Z, set_channel_start
+	;; COMPARE s1, "v"
+	;; JUMP	Z, set_channel_stop
 	COMPARE s1, "s"
 	JUMP	Z, fire_once
 	COMPARE	s1, "n"
@@ -320,7 +322,7 @@ set_dac:
 	CALL    send_spi
 	JUMP cmd_end
 	
-set_channel:
+set_channel_start:
 
 	;; sE is current port
 	;; sF is address XXAA AAXX
@@ -337,17 +339,30 @@ set_channel:
 	SL0	s0		; shift address into place
 	SL0	s0
 	LOAD	sF, s0		; store address
-	
-	LOAD	sE, 00
-	OR	sE, sF
-	OR	sE, 82		; MSB data byte is 10
 
 	FETCH	s1, 03
 	COMPARE s1, " "
 	JUMP	NZ, error_msg
+
+	FETCH   s1, 04
+	SL0	s1
+	SL0	s1
+	SL0	s1
+	SL0	s1
+	SL0	s1
+	SL0	s1
+	OR	sF, s1
+
+	FETCH	s1, 05
+	COMPARE s1, " "
+	JUMP	NZ, error_msg
+		
+	LOAD	sE, 00
+	OR	sE, sF
+	OR	sE, 02		; MSB data byte is 10
 	
 	LOAD	s1, 30		; don't care about rest!
-	FETCH	s2, 04		; only need first bit
+	FETCH	s2, 06		; only need first bit
 	CALL	HEX_TO_BYTE
 	JUMP	NC, error_msg
 
@@ -355,10 +370,10 @@ set_channel:
 
 	LOAD	sE, 00
 	OR	sE, sF
-	OR	sE, 81		; now make current data byte 01
+	OR	sE, 01		; now make current data byte 01
 
-	FETCH	s1, 05	
-	FETCH	s2, 06			
+	FETCH	s1, 07	
+	FETCH	s2, 08			
 	CALL	HEX_TO_BYTE
 	JUMP	NC, error_msg
 
@@ -366,10 +381,10 @@ set_channel:
 
 	LOAD	sE, 00
 	OR	sE, sF
-	OR	sE, 80		; now make current data byte 00
+	OR	sE, 00		; now make current data byte 00
 
-	FETCH	s1, 07	
-	FETCH	s2, 08			
+	FETCH	s1, 09	
+	FETCH	s2, 0A			
 	CALL	HEX_TO_BYTE
 	JUMP	NC, error_msg
 

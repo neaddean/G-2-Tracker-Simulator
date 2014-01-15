@@ -34,7 +34,8 @@ entity fullpulsegen is
   
   port (
     channel       : out std_logic_vector (15 downto 0);
-    start_time    : in  time_array;
+    start_times   : in  time_array;
+    --stop_times    : in  time_array;
     do_once       : in  std_logic;
     initiate      : in  std_logic;
     CLK           : in  std_logic;
@@ -77,7 +78,7 @@ begin
       end if;
     end if;
   end process go_count;
- 
+
   TP9 <= initiate;
 
   enable_pros : process (CLK)
@@ -106,40 +107,47 @@ begin
     end if;
   end process;
 
-  TP6_process : process (CLK)
-  begin
-    if rising_edge(CLK) then
-      if enable = '1' then
-        if (start_time(15, 2)(0) & start_time(15, 1) & start_time(15, 0) = counter) then
-          TP6 <= '1';
-        elsif counter = cperiod(2)(0) & cperiod(1) & cperiod(0) then
+  gen_test_times : for I in 0 to 1 generate
+    TP6_process : process (CLK)
+    begin
+      if rising_edge(CLK) then
+        if enable = '1' then
+          if (start_times(I, 15, 2)(0) & start_times(I, 15, 1) & start_times(I, 15, 0) = counter) then
+            TP6 <= '1';
+          elsif (start_times(I+2, 15, 2)(0) & start_times(I+2, 15, 1) & start_times(I+2, 15, 0) = counter)
+          or counter = cperiod(2)(0) & cperiod(1) & cperiod(0) then
+            TP6 <= '0';
+          end if;
+        else
           TP6 <= '0';
         end if;
-      else
-        TP6 <= '0';
       end if;
-    end if;
-  end process;
+    end process TP6_process;
+  end generate gen_test_times;
 
   TP7 <= '1' when counter(16 downto 0) = "00000000000000000" and enable = '1' else '0';
 --TP6 <= '0';
 
-  gen_pulses : for I in 0 to 15 generate
-    generate_pulses : process (CLK)
-    begin
-      if rising_edge(CLK) then
-        if enable = '1' then
-          if (start_time(I, 2)(0) & start_time(I, 1) & start_time(I, 0) = counter) then
-            channel_reg(I) <= '1';
-          elsif counter = cperiod(2)(0) & cperiod(1) & cperiod(0) then
-            channel_reg(I) <= '0';
+  gen_times : for I in 0 to 1 generate
+    gen_pulses : for J in 0 to 15 generate
+      generate_pulses : process (CLK)
+      begin
+        if rising_edge(CLK) then
+          if enable = '1' then
+            if (start_times(I, J, 2)(0) & start_times(I, J, 1) & start_times(I, J, 0) = counter) then
+              channel_reg(J) <= '1';
+            elsif (start_times(I+2, J, 2)(0) & start_times(I+2, J, 1) & start_times(I+2, J, 0) = counter) then
+              channel_reg(J) <= '0';
+            elsif counter = cperiod(2)(0) & cperiod(1) & cperiod(0) then
+              channel_reg(J) <= '0';
+            end if;
+          else
+            channel_reg(J) <= '0';
           end if;
-        else
-          channel_reg(I) <= '0';
         end if;
-      end if;
-    end process;
-  end generate gen_pulses;
+      end process generate_pulses;
+    end generate gen_pulses;
+  end generate gen_times;
 
 end Behavioral;
 

@@ -6,7 +6,7 @@
 -- Author     :   <dean@weber>
 -- Company    : 
 -- Created    : 2013-11-06
--- Last update: 2013-12-19
+-- Last update: 2014-01-15
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -77,12 +77,12 @@ architecture Behavioral of top is
       do_once                   : out    std_logic;
       start_time                : out    time_array;
       TP8                       : out    std_logic;
-      cperiod                    : out    period;
+      cperiod                   : out    period;
       pulse_period              : out    period);
   end component;
 
   signal initiate     : std_logic;
-  signal start_time   : time_array;
+  signal start_times  : time_array;
   signal cperiod      : period := ((others => (others => '1')));
   signal pulse_period : period := ("00010011", "00010010", "11010000");
   signal do_once      : std_logic;
@@ -90,13 +90,13 @@ architecture Behavioral of top is
   component fullpulsegen
     port (
       channel       : out std_logic_vector (15 downto 0);
-      start_time    : in  time_array;
+      start_times   : in  time_array;
       initiate      : in  std_logic;
       do_once       : in  std_logic;
       CLK           : in  std_logic;
       TP6, TP7, TP9 : out std_logic;
       cperiod       : in  period;
-		pulse_period  : in  period);
+      pulse_period  : in  period);
   end component;
 
   --component pulsegen
@@ -134,16 +134,16 @@ begin
       do_once      => do_once,
       spi_cs       => spi_cs,
       initiate     => initiate,
-      start_time   => start_time,
+      start_time   => start_times,
       TP8          => TP8,
-      cperiod       => cperiod,
+      cperiod      => cperiod,
       pulse_period => pulse_period);
 
   --instance "fullpulsegen_1"
   fullpulsegen_1 : fullpulsegen
     port map (
       channel      => channels,
-      start_time   => start_time,
+      start_times  => start_times,
       do_once      => do_once,
       initiate     => initiate,
       CLK          => CLK125,

@@ -1,0 +1,30 @@
+# Channel periods (ns) 
+# 8ns res (rounds down to nearst 8)
+0=
+1=
+2=
+3=
+4=
+5=
+6=
+7=
+8=
+9=
+A=
+B=
+C=
+D=
+E=
+F=
+
+# Counter period (us)
+p = 2
+
+# DAC settings (V)
+dac0 = 2.5
+dac1 = 2.5
+dac2 = 2.5
+dac3 = 2.5
+
+# Coninuous mode
+auto=on
