@@ -107,47 +107,52 @@ begin
     end if;
   end process;
 
-  gen_test_times : for I in 0 to 1 generate
-    TP6_process : process (CLK)
+  TP6_process : process (CLK)
+  begin
+    if rising_edge(CLK) then
+      if enable = '1' then
+        if (start_times(0, 15, 2)(0) & start_times(0, 15, 1) & start_times(0, 15, 0) = counter) then
+          TP6 <= '1';
+        --elsif (start_times(1, 15, 2)(0) & start_times(1, 15, 1) & start_times(1, 15, 0) = counter) then
+        --  TP6 <= '1';
+        --elsif ((start_times(2, 15, 2)(0) & start_times(2, 15, 1) & start_times(2, 15, 0) = counter)) then
+        --  TP6 <= '0';
+        --elsif ((start_times(3, 15, 2)(0) & start_times(3, 15, 1) & start_times(3, 15, 0) = counter)) then
+        --  TP6 <= '0';
+        elsif (counter = cperiod(2)(0) & cperiod(1) & cperiod(0)) then
+          TP6 <= '0';
+        end if;
+      else
+        TP6 <= '0';
+      end if;
+    end if;
+  end process TP6_process;
+
+
+  TP7 <= '1' when counter(16 downto 0) = "00000000000000000" and enable = '1' else '0';
+  
+  gen_pulses : for J in 0 to 15 generate
+    generate_pulses : process (CLK)
     begin
       if rising_edge(CLK) then
         if enable = '1' then
-          if (start_times(I, 15, 2)(0) & start_times(I, 15, 1) & start_times(I, 15, 0) = counter) then
-            TP6 <= '1';
-          elsif (start_times(I+2, 15, 2)(0) & start_times(I+2, 15, 1) & start_times(I+2, 15, 0) = counter)
-          or counter = cperiod(2)(0) & cperiod(1) & cperiod(0) then
-            TP6 <= '0';
-          end if;
-        else
-          TP6 <= '0';
-        end if;
-      end if;
-    end process TP6_process;
-  end generate gen_test_times;
-
-  TP7 <= '1' when counter(16 downto 0) = "00000000000000000" and enable = '1' else '0';
---TP6 <= '0';
-
-  gen_times : for I in 0 to 1 generate
-    gen_pulses : for J in 0 to 15 generate
-      generate_pulses : process (CLK)
-      begin
-        if rising_edge(CLK) then
-          if enable = '1' then
-            if (start_times(I, J, 2)(0) & start_times(I, J, 1) & start_times(I, J, 0) = counter) then
-              channel_reg(J) <= '1';
-            elsif (start_times(I+2, J, 2)(0) & start_times(I+2, J, 1) & start_times(I+2, J, 0) = counter) then
-              channel_reg(J) <= '0';
-            elsif counter = cperiod(2)(0) & cperiod(1) & cperiod(0) then
-              channel_reg(J) <= '0';
-            end if;
-          else
+          if (start_times(0, J, 2)(0) & start_times(0, J, 1) & start_times(0, J, 0) = counter) then
+            channel_reg(J) <= '1';
+          --elsif (start_times(1, J, 2)(0) & start_times(1, J, 1) & start_times(1, J, 0) = counter) then
+          --  channel_reg(J) <= '1';
+          --elsif (start_times(2, J, 2)(0) & start_times(2, J, 1) & start_times(2, J, 0) = counter) then
+          --  channel_reg(J) <= '0';
+          --elsif (start_times(3, J, 2)(0) & start_times(3, J, 1) & start_times(3, J, 0) = counter) then
+          --  channel_reg(J) <= '0';
+          elsif counter = cperiod(2)(0) & cperiod(1) & cperiod(0) then
             channel_reg(J) <= '0';
           end if;
+        else
+          channel_reg(J) <= '0';
         end if;
-      end process generate_pulses;
-    end generate gen_pulses;
-  end generate gen_times;
+      end if;
+    end process generate_pulses;
+  end generate gen_pulses;
 
 end Behavioral;
 

@@ -75,7 +75,7 @@ architecture Behavioral of top is
       spi_clk, spi_mosi, spi_cs : out    std_logic;
       initiate                  : buffer std_logic;
       do_once                   : out    std_logic;
-      start_time                : out    time_array;
+      start_times                : out    time_array;
       TP8                       : out    std_logic;
       cperiod                   : out    period;
       pulse_period              : out    period);

@@ -36,7 +36,7 @@ entity uart_top is
     spi_clk, spi_mosi, spi_cs : out    std_logic;
     initiate                  : buffer std_logic;
     do_once                   : out    std_logic;
-    start_time                : out    time_array;
+    start_times                : out    time_array;
     TP8                       : out    std_logic;
     cperiod                   : out    period;
     pulse_period              : out    period); 
@@ -355,7 +355,7 @@ begin
             when others   => out_port        <= "XXXXXXXX";
           end case;
         else
-          start_time(conv_integer(port_id(7 downto 6)), conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
+          start_times(conv_integer(port_id(7 downto 6)), conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
             <= out_port;
         end if;
       end if;
@@ -392,7 +392,7 @@ begin
 --
 
   --zeros: for I in 0 to 15 generate
-  --    start_time(I,2)(7 downto 1) <= (others => '0');
+  --    start_timess(I,2)(7 downto 1) <= (others => '0');
   --end generate zeros;
 
 end Behavioral;
