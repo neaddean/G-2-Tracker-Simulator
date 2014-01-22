@@ -6,7 +6,7 @@
 -- Author     :   <dean@weber>
 -- Company    : 
 -- Created    : 2013-11-06
--- Last update: 2014-01-15
+-- Last update: 2014-01-17
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ begin
       do_once      => do_once,
       spi_cs       => spi_cs,
       initiate     => initiate,
-      start_time   => start_times,
+      start_times   => start_times,
       TP8          => TP8,
       cperiod      => cperiod,
       pulse_period => pulse_period);

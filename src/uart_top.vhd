@@ -36,7 +36,7 @@ entity uart_top is
     spi_clk, spi_mosi, spi_cs : out    std_logic;
     initiate                  : buffer std_logic;
     do_once                   : out    std_logic;
-    start_times                : out    time_array;
+    start_times               : out    time_array;
     TP8                       : out    std_logic;
     cperiod                   : out    period;
     pulse_period              : out    period); 
@@ -333,30 +333,59 @@ begin
   -- connect the 'out_port' to the transmitter macro and generate the write pulse.
   -- 
 
+  --gp_output_ports : process (clk)
+  --begin
+  --  if rising_edge(clk) then
+  --    if write_strobe = '1' then
+  --      if port_id(1 downto 0) = "11" and not port_id(7) = '1' then
+  --      case port_id(7 downto 2) is
+          --when "000000" => LED     <= out_port(2 downto 0);
+          --when "000001" => spi_clk <= out_port(0);
+          --                 spi_cs   <= out_port(1);
+          --                 spi_mosi <= out_port(7);
+          --when "000010" => do_once  <= out_port(0);
+          --when "000011" => initiate <= out_port(0);
+          --                 TP8 <= out_port(0);
+          --when "000100" => cperiod(2)      <= out_port;
+          --when "000101" => cperiod(1)      <= out_port;
+          --when "000110" => cperiod(0)      <= out_port;
+          --when "000111" => pulse_period(2) <= out_port;
+          --when "001000" => pulse_period(1) <= out_port;
+          --when "001001" => pulse_period(0) <= out_port;
+  --        when others => out_port <= "XXXXXXXX";
+  --      end case;
+  --    else
+  --      start_times(conv_integer(port_id(7 downto 6)), conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
+  --        <= out_port;
+  --    end if;
+  --    end if;
+  --  end if;
+  --end process gp_output_ports;
+
   gp_output_ports : process (clk)
   begin
     if rising_edge(clk) then
       if write_strobe = '1' then
         if port_id(1 downto 0) = "11" then
-          case port_id(7 downto 2) is
-            when "000000" => LED     <= out_port(2 downto 0);
-            when "000001" => spi_clk <= out_port(0);
-                             spi_cs   <= out_port(1);
-                             spi_mosi <= out_port(7);
-            when "000010" => do_once  <= out_port(0);
-            when "000011" => initiate <= out_port(0);
-                             TP8 <= out_port(0);
-            when "000100" => cperiod(2)      <= out_port;
-            when "000101" => cperiod(1)      <= out_port;
-            when "000110" => cperiod(0)      <= out_port;
-            when "000111" => pulse_period(2) <= out_port;
-            when "001000" => pulse_period(1) <= out_port;
-            when "001001" => pulse_period(0) <= out_port;
-            when others   => out_port        <= "XXXXXXXX";
+          case port_id(7 downto 1) is
+          when "0000000" => LED     <= out_port(2 downto 0);
+          when "0000001" => spi_clk <= out_port(0);
+                           spi_cs   <= out_port(1);
+                           spi_mosi <= out_port(7);
+          when "0000010" => do_once  <= out_port(0);
+          when "0000011" => initiate <= out_port(0);
+                           TP8 <= out_port(0);
+          when "0000100" => cperiod(2)      <= out_port;
+          when "0000101" => cperiod(1)      <= out_port;
+          when "0000110" => cperiod(0)      <= out_port;
+          when "0000111" => pulse_period(2) <= out_port;
+          when "0001000" => pulse_period(1) <= out_port;
+          when "0001001" => pulse_period(0) <= out_port;
+            when others    => out_port  <= "XXXXXXXX";
           end case;
         else
-          start_times(conv_integer(port_id(7 downto 6)), conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
-            <= out_port;
+        start_times(conv_integer(port_id(7 downto 6)), conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
+          <= out_port;
         end if;
       end if;
     end if;
@@ -366,6 +395,11 @@ begin
 
   write_to_uart_tx <= '1' when (write_strobe = '1') and (port_id = "10000011")
                       else '0';
+
+  --uart_tx_data_in <= out_port;
+
+  --write_to_uart_tx <= '1' when (write_strobe = '1') and (port_id = "10000011")
+  --                    else '0';
 
 --
 -----------------------------------------------------------------------------------------
