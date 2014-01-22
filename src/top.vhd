@@ -6,7 +6,7 @@
 -- Author     :   <dean@weber>
 -- Company    : 
 -- Created    : 2013-11-06
--- Last update: 2013-12-19
+-- Last update: 2014-01-22
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -48,7 +48,12 @@ entity top is
         LED                       : out std_logic_vector (2 downto 0);
         channels                  : out std_logic_vector (15 downto 0);
         TP6, TP7, TP8, TP9        : out std_logic;
-        high_z_pin                : out std_logic);
+        high_z_pin                : out std_logic;
+        -- LVDS I/Os on VHDCI connector
+        c5_out_p                  : out std_logic;
+        c5_out_n                  : out std_logic;
+        tdc_8b10b_p               : in  std_logic;
+        tdc_8b10b_n               : in  std_logic);
 end top;
 
 architecture Behavioral of top is
@@ -77,7 +82,7 @@ architecture Behavioral of top is
       do_once                   : out    std_logic;
       start_time                : out    time_array;
       TP8                       : out    std_logic;
-      cperiod                    : out    period;
+      cperiod                   : out    period;
       pulse_period              : out    period);
   end component;
 
@@ -96,7 +101,7 @@ architecture Behavioral of top is
       CLK           : in  std_logic;
       TP6, TP7, TP9 : out std_logic;
       cperiod       : in  period;
-		pulse_period  : in  period);
+      pulse_period  : in  period);
   end component;
 
   --component pulsegen
@@ -136,7 +141,7 @@ begin
       initiate     => initiate,
       start_time   => start_time,
       TP8          => TP8,
-      cperiod       => cperiod,
+      cperiod      => cperiod,
       pulse_period => pulse_period);
 
   --instance "fullpulsegen_1"
