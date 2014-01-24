@@ -288,8 +288,8 @@ begin
   -- on both the transmitter and receiver. The second is used to read the data from the 
   -- receiver and generate the 'buffer_read' pulse.
   --
-
-  input_ports : process(clk)
+  
+input_ports : process(clk)
   begin
     if clk'event and clk = '1' then
       case port_id(0) is
@@ -321,8 +321,6 @@ begin
     end if;
   end process input_ports;
 
-
-
   --
   -----------------------------------------------------------------------------------------
   -- General Purpose Output Ports 
@@ -339,19 +337,19 @@ begin
   --    if write_strobe = '1' then
   --      if port_id(1 downto 0) = "11" and not port_id(7) = '1' then
   --      case port_id(7 downto 2) is
-          --when "000000" => LED     <= out_port(2 downto 0);
-          --when "000001" => spi_clk <= out_port(0);
-          --                 spi_cs   <= out_port(1);
-          --                 spi_mosi <= out_port(7);
-          --when "000010" => do_once  <= out_port(0);
-          --when "000011" => initiate <= out_port(0);
-          --                 TP8 <= out_port(0);
-          --when "000100" => cperiod(2)      <= out_port;
-          --when "000101" => cperiod(1)      <= out_port;
-          --when "000110" => cperiod(0)      <= out_port;
-          --when "000111" => pulse_period(2) <= out_port;
-          --when "001000" => pulse_period(1) <= out_port;
-          --when "001001" => pulse_period(0) <= out_port;
+  --when "000000" => LED     <= out_port(2 downto 0);
+  --when "000001" => spi_clk <= out_port(0);
+  --                 spi_cs   <= out_port(1);
+  --                 spi_mosi <= out_port(7);
+  --when "000010" => do_once  <= out_port(0);
+  --when "000011" => initiate <= out_port(0);
+  --                 TP8 <= out_port(0);
+  --when "000100" => cperiod(2)      <= out_port;
+  --when "000101" => cperiod(1)      <= out_port;
+  --when "000110" => cperiod(0)      <= out_port;
+  --when "000111" => pulse_period(2) <= out_port;
+  --when "001000" => pulse_period(1) <= out_port;
+  --when "001001" => pulse_period(0) <= out_port;
   --        when others => out_port <= "XXXXXXXX";
   --      end case;
   --    else
@@ -366,26 +364,26 @@ begin
   begin
     if rising_edge(clk) then
       if write_strobe = '1' then
-        if port_id(1 downto 0) = "11" then
-          case port_id(7 downto 1) is
-          when "0000000" => LED     <= out_port(2 downto 0);
-          when "0000001" => spi_clk <= out_port(0);
+        if port_id(2 downto 0) = "011" then
+          case port_id(7 downto 3) is
+            when "00000" => LED     <= out_port(2 downto 0);
+            when "00001" => spi_clk <= out_port(0);
                            spi_cs   <= out_port(1);
                            spi_mosi <= out_port(7);
-          when "0000010" => do_once  <= out_port(0);
-          when "0000011" => initiate <= out_port(0);
-                           TP8 <= out_port(0);
-          when "0000100" => cperiod(2)      <= out_port;
-          when "0000101" => cperiod(1)      <= out_port;
-          when "0000110" => cperiod(0)      <= out_port;
-          when "0000111" => pulse_period(2) <= out_port;
-          when "0001000" => pulse_period(1) <= out_port;
-          when "0001001" => pulse_period(0) <= out_port;
-            when others    => out_port  <= "XXXXXXXX";
+            when "00010" => do_once  <= out_port(0);
+            when "00011" => initiate <= out_port(0);
+                         TP8 <= out_port(0);
+            when "00100" => cperiod(2)      <= out_port;
+            when "00101" => cperiod(1)      <= out_port;
+            when "00110" => cperiod(0)      <= out_port;
+            when "00111" => pulse_period(2) <= out_port;
+            when "01000" => pulse_period(1) <= out_port;
+            when "01001" => pulse_period(0) <= out_port;
+            when others  =>  null;
           end case;
         else
-        start_times(conv_integer(port_id(7 downto 6)), conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
-          <= out_port;
+          start_times(conv_integer(port_id(7 downto 6)), conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
+            <= out_port;
         end if;
       end if;
     end if;
@@ -409,17 +407,20 @@ begin
 -- One constant-optimised output port is used to facilitate resetting of the UART macros.
 --
 
-  constant_output_ports : process(clk)
-  begin
-    if clk'event and clk = '1' then
-      if k_write_strobe = '1' then
-        if port_id = "00000000" then
-          uart_tx_reset <= out_port(0);
-          uart_rx_reset <= out_port(1);
-        end if;
-      end if;
-    end if;
-  end process constant_output_ports;
+  --constant_output_ports : process(clk)
+  --begin
+  --  if clk'event and clk = '1' then
+  --    if k_write_strobe = '1' then
+  --      if port_id = "11100011" then
+  --        uart_tx_reset <= out_port(0);
+  --        uart_rx_reset <= out_port(1);
+  --      end if;
+  --    end if;
+  --  end if;
+  --end process constant_output_ports;
+
+  uart_tx_reset <= '0';
+  uart_rx_reset <= '0';
 
 --
 -----------------------------------------------------------------------------------------
