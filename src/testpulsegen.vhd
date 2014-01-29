@@ -34,7 +34,8 @@ entity pulsegen is
   port (
     channel : out std_logic_vector (15 downto 0);
     CLK     : in  std_logic;
-    TP6     : out std_logic);
+    TP6     : out std_logic;
+	 OUT2 	: out std_logic);
 
 end pulsegen;
 
@@ -46,6 +47,7 @@ begin  -- Behavioral
 
 channel <= counter(31 downto 16);
 TP6 <= counter(15);
+OUT2 <= counter(16);
 
   count: process (CLK)
   begin 

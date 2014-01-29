@@ -48,7 +48,8 @@ entity top is
         LED                       : out std_logic_vector (2 downto 0);
         channels                  : out std_logic_vector (15 downto 0);
         TP6, TP7, TP8, TP9        : out std_logic;
-        high_z_pin                : out std_logic);
+        high_z_pin                : out std_logic;
+		  c5_1, c5_2					 : out std_logic);
 end top;
 
 architecture Behavioral of top is
@@ -99,12 +100,13 @@ architecture Behavioral of top is
       pulse_period  : in  period);
   end component;
 
-  --component pulsegen
-  --  port (
-  --    channel : out std_logic_vector (15 downto 0);
-  --    CLK     : in  std_logic;
-  --    TP6     : out std_logic);
-  --end component;
+  component pulsegen
+    port (
+      channel : out std_logic_vector (1 downto 0);
+      CLK     : in  std_logic;
+      TP6     : out std_logic;
+		OUT2 	  : out std_logic);
+  end component;
 
 begin
 
@@ -154,11 +156,12 @@ begin
       pulse_period => pulse_period);
 
 
----- instance "pulsegen_1"
---  pulsegen_1 : pulsegen
---    port map (
---      channel => channels,
---      CLK     => CLK125,
---      TP6     => TP6);
+-- instance "pulsegen_1"
+  pulsegen_1 : pulsegen
+    port map (
+      channel => open,
+      CLK     => CLK125,
+      TP6     => c5_1,
+		OUT2 	  => c5_2);
 
 end Behavioral;

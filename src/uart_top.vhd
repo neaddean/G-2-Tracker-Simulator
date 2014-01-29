@@ -366,19 +366,19 @@ input_ports : process(clk)
       if write_strobe = '1' then
         if port_id(1 downto 0) = "11" then
           case port_id(6 downto 2) is
-            when "0000" => LED     <= out_port(2 downto 0);
-            when "0001" => spi_clk <= out_port(0);
+            when "00000" => LED     <= out_port(2 downto 0);
+            when "00001" => spi_clk <= out_port(0);
                           spi_cs   <= out_port(1);
                           spi_mosi <= out_port(7);
-            when "0010" => do_once  <= out_port(0);
-            when "0011" => initiate <= out_port(0);
+            when "00010" => do_once  <= out_port(0);
+            when "00011" => initiate <= out_port(0);
                         TP8 <= out_port(0);
-            when "0100" => cperiod(2)      <= out_port;
-            when "0101" => cperiod(1)      <= out_port;
-            when "0110" => cperiod(0)      <= out_port;
-            when "0111" => pulse_period(2) <= out_port;
-            when "1000" => pulse_period(1) <= out_port;
-            when "1001" => pulse_period(0) <= out_port;
+            when "00100" => cperiod(2)      <= out_port;
+            when "00101" => cperiod(1)      <= out_port;
+            when "00110" => cperiod(0)      <= out_port;
+            when "00111" => pulse_period(2) <= out_port;
+            when "01000" => pulse_period(1) <= out_port;
+            when "01001" => pulse_period(0) <= out_port;
             when others  =>  null;
           end case;
         else

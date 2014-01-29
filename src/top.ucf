@@ -103,6 +103,9 @@ NET "TP6"    LOC = P87 | IOSTANDARD = LVCMOS33;
 NET "TP7"    LOC = P85 | IOSTANDARD = LVCMOS33;
 NET "TP8"    LOC = P84 | IOSTANDARD = LVCMOS33;
 NET "TP9"    LOC = P83 | IOSTANDARD = LVCMOS33;
+
+NET "c5_1"    LOC = P46 | IOSTANDARD = LVCMOS33;
+NET "c5_2"    LOC = P45 | IOSTANDARD = LVCMOS33;
 #
 #------------------------------------------------------------------------------------------
 # End of File
