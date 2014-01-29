@@ -96,7 +96,7 @@ for i, j in sorted_ddata:
     
 sorted_cdata = sorted(channeldata.iteritems(), key=operator.itemgetter(0))
 for i, j in sorted_cdata:
-    mystr = "c " + i + " " + j + "\r"
+    mystr = "c " + i + " 0 " + j + "\r"
     print mystr
     trackersim.write(mystr)
 
@@ -143,11 +143,11 @@ while not args.script:
         if instr[4:] == "off":
             channelmemdata[instr[2]] = channeldata[instr[2]]
             channeldata[instr[2]] = myround(int(p[2:],16)*1000 + 40)
-            trackersim.write("c " + instr[2] + " " + channeldata[instr[2]] + "\r")
+            trackersim.write("c " + instr[2] + " 0 " + channeldata[instr[2]] + "\r")
             continue
         elif instr[4:] == "on":
             channeldata[instr[2]] = channelmemdata[instr[2]]
-            trackersim.write("c " + instr[2] + " " + channeldata[instr[2]] + "\r")
+            trackersim.write("c " + instr[2] + " 0 " + channeldata[instr[2]] + "\r")
             continue
         newhex = myround(instr[4:])
         trackersim.write("c " + instr[2] + " " + newhex + "\r")

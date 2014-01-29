@@ -372,7 +372,7 @@ input_ports : process(clk)
                           spi_mosi <= out_port(7);
             when "00010" => do_once  <= out_port(0);
             when "00011" => initiate <= out_port(0);
-                        TP8 <= out_port(0);
+                        --TP8 <= out_port(0);
             when "00100" => cperiod(2)      <= out_port;
             when "00101" => cperiod(1)      <= out_port;
             when "00110" => cperiod(0)      <= out_port;
@@ -381,9 +381,11 @@ input_ports : process(clk)
             when "01001" => pulse_period(0) <= out_port;
             when others  =>  null;
           end case;
+          TP8 <= '0';
         else
-          start_times(conv_integer(port_id(7 downto 6)), conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
+          start_times(0, conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
             <= out_port;
+          TP8 <= '1';
         end if;
       end if;
     end if;

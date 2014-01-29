@@ -79,7 +79,7 @@ begin
     end if;
   end process go_count;
 
-  TP9 <= initiate;
+  TP9 <= counter(8);
 
   enable_pros : process (CLK)
   begin
@@ -113,10 +113,10 @@ begin
       if enable = '1' then
         if (start_times(0, 15, 2)(0) & start_times(0, 15, 1) & start_times(0, 15, 0) = counter) then
           TP6 <= '1';
-        elsif (start_times(1, 15, 2)(0) & start_times(1, 15, 1) & start_times(1, 15, 0) = counter) then
-          TP6 <= '0';
-        elsif ((start_times(2, 15, 2)(0) & start_times(2, 15, 1) & start_times(2, 15, 0) = counter)) then
-          TP6 <= '1';
+        --elsif (start_times(1, 15, 2)(0) & start_times(1, 15, 1) & start_times(1, 15, 0) = counter) then
+        --  TP6 <= '0';
+        --elsif ((start_times(2, 15, 2)(0) & start_times(2, 15, 1) & start_times(2, 15, 0) = counter)) then
+        --  TP6 <= '1';
         --elsif ((start_times(3, 15, 2)(0) & start_times(3, 15, 1) & start_times(3, 15, 0) = counter)) then
         --  TP6 <= '0';
         elsif (counter = cperiod(2)(0) & cperiod(1) & cperiod(0)) then
