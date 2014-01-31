@@ -77,7 +77,7 @@ begin
       end if;
     end if;
   end process go_count;
- 
+
   TP9 <= initiate;
 
   enable_pros : process (CLK)
@@ -112,6 +112,10 @@ begin
       if enable = '1' then
         if (start_time(15, 2)(0) & start_time(15, 1) & start_time(15, 0) = counter) then
           TP6 <= '1';
+        --elsif (start_time(1, 15, 2)(0) & start_time(1, 15, 1) & start_time(1, 15, 0) = counter) then
+        --  TP6 <= '0';
+        --elsif (start_time(2, 15, 2)(0) & start_time(2, 15, 1) & start_time(2, 15, 0) = counter) then
+        --  TP6 <= '1';
         elsif counter = cperiod(2)(0) & cperiod(1) & cperiod(0) then
           TP6 <= '0';
         end if;
@@ -129,9 +133,9 @@ begin
     begin
       if rising_edge(CLK) then
         if enable = '1' then
-          if (start_time(I, 2)(0) & start_time(I, 1) & start_time(I, 0) = counter) then
-            channel_reg(I) <= '1';
-          elsif counter = cperiod(2)(0) & cperiod(1) & cperiod(0) then
+          --if (start_time(0, I, 2)(0) & start_time(0, I, 1) & start_time(0, I, 0) = counter) then
+          --  channel_reg(I) <= '1';
+          if counter = cperiod(2)(0) & cperiod(1) & cperiod(0) then
             channel_reg(I) <= '0';
           end if;
         else
