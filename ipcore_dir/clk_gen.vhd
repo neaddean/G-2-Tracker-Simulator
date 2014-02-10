@@ -55,8 +55,7 @@
 -- "Output    Output      Phase     Duty      Pk-to-Pk        Phase"
 -- "Clock    Freq (MHz) (degrees) Cycle (%) Jitter (ps)  Error (ps)"
 ------------------------------------------------------------------------------
--- CLK_OUT1____25.000______0.000______50.0_____1000.000____150.000
--- CLK_OUT2___125.000______0.000______50.0______200.000____150.000
+-- CLK_OUT1___100.000______0.000______50.0______400.000____150.000
 --
 ------------------------------------------------------------------------------
 -- "Input Clock   Freq (MHz)    Input Jitter (UI)"
@@ -78,18 +77,16 @@ port
   clk125_P         : in     std_logic;
   clk125_N         : in     std_logic;
   -- Clock out ports
-  clk25          : out    std_logic;
-  clk125          : out    std_logic
+  clk100_in          : out    std_logic
  );
 end clk_gen;
 
 architecture xilinx of clk_gen is
   attribute CORE_GENERATION_INFO : string;
-  attribute CORE_GENERATION_INFO of xilinx : architecture is "clk_gen,clk_wiz_v3_6,{component_name=clk_gen,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=false,use_inclk_switchover=false,use_dyn_reconfig=false,feedback_source=FDBK_AUTO,primtype_sel=DCM_SP,num_out_clk=2,clkin1_period=8.0,clkin2_period=8.0,use_power_down=false,use_reset=false,use_locked=false,use_inclk_stopped=false,use_status=false,use_freeze=false,use_clk_valid=false,feedback_type=SINGLE,clock_mgr_type=AUTO,manual_override=false}";
+  attribute CORE_GENERATION_INFO of xilinx : architecture is "clk_gen,clk_wiz_v3_6,{component_name=clk_gen,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=false,use_inclk_switchover=false,use_dyn_reconfig=false,feedback_source=FDBK_AUTO,primtype_sel=DCM_SP,num_out_clk=1,clkin1_period=8.0,clkin2_period=8.0,use_power_down=false,use_reset=false,use_locked=false,use_inclk_stopped=false,use_status=false,use_freeze=false,use_clk_valid=false,feedback_type=SINGLE,clock_mgr_type=AUTO,manual_override=false}";
 	  -- Input clock buffering / unused connectors
   signal clkin1            : std_logic;
   -- Output clock buffering
-  signal clk_out2_internal : std_logic;
   signal clkfb             : std_logic;
   signal clk0              : std_logic;
   signal clkfx             : std_logic;
@@ -116,9 +113,9 @@ begin
   --    * Unused outputs are labeled unused
   dcm_sp_inst: DCM_SP
   generic map
-   (CLKDV_DIVIDE          => 5.000,
-    CLKFX_DIVIDE          => 10,
-    CLKFX_MULTIPLY        => 2,
+   (CLKDV_DIVIDE          => 2.000,
+    CLKFX_DIVIDE          => 5,
+    CLKFX_MULTIPLY        => 4,
     CLKIN_DIVIDE_BY_2     => FALSE,
     CLKIN_PERIOD          => 8.0,
     CLKOUT_PHASE_SHIFT    => "NONE",
@@ -157,21 +154,17 @@ begin
 
   -- Output buffering
   -------------------------------------
-  clkfb <= clk_out2_internal;
+  clkf_buf : BUFG
+  port map
+   (O => clkfb,
+    I => clk0);
 
 
   clkout1_buf : BUFG
   port map
-   (O   => clk25,
+   (O   => clk100_in,
     I   => clkfx);
 
 
-
-  clkout2_buf : BUFG
-  port map
-   (O   => clk_out2_internal,
-    I   => clk0);
-
-  clk125 <= clk_out2_internal;
 
 end xilinx;
