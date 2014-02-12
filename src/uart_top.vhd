@@ -94,7 +94,7 @@ architecture arch of uart_top is
       clk            : in  std_logic);
   end component kcpsm6;
 
-  component uart_test is
+  component cli is
     generic (
       C_FAMILY             : string;
       C_RAM_SIZE_KWORDS    : integer;
@@ -105,7 +105,7 @@ architecture arch of uart_top is
       enable      : in  std_logic;
       rdl         : out std_logic;
       clk         : in  std_logic);
-  end component uart_test;
+  end component cli;
 
   component uart_tx6 is
     port (
@@ -209,7 +209,7 @@ begin  -- architecture arch
   kcpsm6_sleep <= '0';
   interrupt    <= interrupt_ack;
 
-  program_rom : uart_test                     --Name to match your PSM file
+  program_rom : cli                     --Name to match your PSM file
     generic map(C_FAMILY             => "S6",  --Family 'S6', 'V6' or '7S'
                 C_RAM_SIZE_KWORDS    => 1,  --Program size '1', '2' or '4'
                 C_JTAG_LOADER_ENABLE => 1)  --Include JTAG Loader when set to '1' 
@@ -239,7 +239,6 @@ begin  -- architecture arch
         -- Read UART_RX6 data at port address 01 hex
         -- (see 'buffer_read' pulse generation below) 
         when "0001" => in_port <= uart_rx_data_out;
-        -- Read 8 general purpose switches at port address 02 hex
         when "0011" => in_port <= d_fifo_d;
                        if (read_strobe = '1') and (port_id(3 downto 0) = "0011") then
                          d_fifo_rd <= '1';  -- enable read strobe to be sent to the fifo
@@ -273,12 +272,12 @@ begin  -- architecture arch
             when "0001001" => do_once  <= out_port(0);
             when "0001000" => initiate <= out_port(0);
                               TP8 <= out_port(0);
-            when "1000000" => cperiod(2)               <= out_port;
+            when "1000010" => cperiod(2)               <= out_port;
             when "1000001" => cperiod(1)               <= out_port;
-            when "1000010" => cperiod(0)               <= out_port;
-            when "1000100" => pulse_period(2)          <= out_port;
+            when "1000000" => cperiod(0)               <= out_port;
+            when "1000110" => pulse_period(2)          <= out_port;
             when "1000101" => pulse_period(1)          <= out_port;
-            when "1000110" => pulse_period(0)          <= out_port;
+            when "1000100" => pulse_period(0)          <= out_port;
             when "0100000" => misc_ctrl                <= out_port;
             when "0100001" => fake_length(7 downto 0)  <= out_port;
             when "0100010" => fake_length(11 downto 8) <= out_port(3 downto 0);
