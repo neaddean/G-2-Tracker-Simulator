@@ -102,6 +102,13 @@ NET "TP6"    LOC = P87 | IOSTANDARD = LVCMOS33;
 NET "TP7"    LOC = P85 | IOSTANDARD = LVCMOS33;
 NET "TP8"    LOC = P84 | IOSTANDARD = LVCMOS33;
 NET "TP9"    LOC = P83 | IOSTANDARD = LVCMOS33;
+
+NET "c5_out_p"    LOC = "P41"  | IOSTANDARD = "LVDS_33" | DIFF_TERM = TRUE;   #Bank = 0, Pin name = IO_L2P,                            Sch name = EXP_IO1_P
+NET "c5_out_n"    LOC = "P40"  | IOSTANDARD = "LVDS_33" | DIFF_TERM = TRUE;   #Bank = 0, Pin name = IO_L2N,                            Sch name = EXP_IO1_N
+
+NET "tdc_8b10b_p"    LOC = "P81"  | IOSTANDARD = "LVDS_33" | DIFF_TERM = TRUE;   #Bank = 0, Pin name = IO_L4P,                            Sch name = EXP_IO3_P
+NET "tdc_8b10b_n"    LOC = "P80"  | IOSTANDARD = "LVDS_33" | DIFF_TERM = TRUE;   #Bank = 0, Pin name = IO_L4N,                            Sch name = EXP_IO3_N
+
 #
 #------------------------------------------------------------------------------------------
 # End of File
