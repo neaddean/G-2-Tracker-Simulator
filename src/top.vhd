@@ -6,7 +6,7 @@
 -- Author     :   <dean@weber>
 -- Company    : 
 -- Created    : 2013-11-06
--- Last update: 2014-02-10
+-- Last update: 2014-02-19
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -49,7 +49,6 @@ entity top is
         LED                       : out std_logic_vector (2 downto 0);
         channels                  : out std_logic_vector (15 downto 0);
         TP6, TP7, TP8, TP9        : out std_logic;
-        high_z_pin                : out std_logic;
         -- LVDS I/Os on VHDCI connector
         c5_out_p                  : out std_logic;
         c5_out_n                  : out std_logic;
