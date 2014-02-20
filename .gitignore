@@ -11,7 +11,7 @@
 !vhdl/
 !ipcore_dir/
 !src/
-!src/*
+!src/*/*
 !src/roms/*.psm
 src/*.pyc
 !*.vhd
