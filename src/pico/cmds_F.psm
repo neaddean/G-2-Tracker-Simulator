@@ -1,0 +1,79 @@
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name       | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | CMD_fire   | x  |    |    |    |    |    |    |    |    |    |    |    |
+
+CMD_fire:
+	LOAD	s0, FF
+	OUTPUT	s0, ONCEPORT
+	LOAD 	s0, 00
+	OUTPUT	s0, ONCEPORT
+
+	RETURN
+
+CMD_FIFO_flags:
+	INPUT	s0, FIFO_flags
+	CALL	util_print_hex_byte
+	CALL	util_print_EOL
+	RETURN
+
+CMD_FIFO_read:
+	FETCH	s0, CLI_COUNT
+
+	LOAD	sF, FF
+	OUTPUT	sF, LED_PORT
+	CALL	util_print_hex_byte
+	CALL	util_print_EOL
+	
+	COMPARE	s0, 01
+	JUMP	Z, FIFO_read_len	
+	
+FIFO_read_all:
+	LOAD	s7, 00		;set count 0020 by default
+	LOAD	s6, 20
+
+	JUMP	do_D_init_read
+
+FIFO_read_len:
+
+	LOAD	s0, CLI_WORD_1
+
+	FETCH	s6, (s0)
+	ADD	s0, 01
+	FETCH	s7, (s0)
+
+
+do_D_init_read:
+	LOAD	s8, 01		;byte counter
+	
+	LOAD	s0, 3C		; write K.28.1 word that is missed by the FIFO
+	CALL	util_print_hex_byte
+	
+do_D_read:
+	INPUT	s0, FIFO_flags
+	AND	s0, 01
+	JUMP	NZ, do_D_empty 	;go if empty
+	INPUT	s0, FIFO_data
+	CALL	util_print_hex_byte
+	ADD	S8, 01		;increment byte coutner
+	AND	s8, 03		;check module 4
+	JUMP	NZ, do_D_read
+	CALL	util_print_EOL	;send CR after 4 bytes
+	SUB	s6, 1'd		;decrement word count
+	SUBCY	s7, 0'd
+	JUMP	NZ, do_D_read
+
+	RETURN
+
+do_D_empty:
+	LOAD	s0, 58
+	OUTPUT	s0, UART_OUTPUT
+	CALL	util_print_EOL
+	RETURN
+
+CMD_FIFO_reset:
+	OUTPUT	s0, RESET_fifo_port
+	LOAD	sF, 00
+	OUTPUT	sF, LED_PORT
+	RETURN

@@ -1,0 +1,49 @@
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name          | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | CMD_channel   | x  | x  |    |    | x  |    |    |    |    |    |    |    |
+;;; | CMD_con_start | x  |    |    |    |    |    |    |    |    |    |    |    |
+;;; | CMD_con_stop  | x  |    |    |    |    |    |    |    |    |    |    |    |
+
+
+CMD_channel:
+	FETCH 	s0, CLI_WORD_1
+	SL0	s0
+	SL0	s0		;shift address into place
+
+	LOAD	s4, s0		;store address
+	OR	s4, 80		;lsb
+
+	LOAD	s1, CLI_WORD_2	;pointer
+	
+	FETCH	s0, (s1)	;fetch lsb of channel period
+	OUTPUT	s0, (s4)	;output lsb
+
+	ADD	s4, 01		;next byte of address
+	ADD	s1, 01		;next byte of channel period
+
+	FETCH	s0, (s1)
+	OUTPUT	s0, (s4)	;middle byte
+
+	ADD	s4, 01
+	ADD	s1, 01		;msb, 0X
+
+	FETCH 	s0, (s1)
+	OUTPUT	s0, (s4)	;msb
+
+	RETURN
+	
+CMD_cont_start:
+	LOAD	s0, FF
+	OUTPUT	s0, INITPORT
+
+	RETURN
+
+CMD_cont_stop:
+	LOAD	s0, 00
+	OUTPUT	s0, INITPORT
+
+	RETURN
+
+

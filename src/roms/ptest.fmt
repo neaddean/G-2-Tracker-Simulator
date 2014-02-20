@@ -1,0 +1,159 @@
+              NAMEREG sD, COUNTER1
+              NAMEREG sC, SPI_BIT_COUNT
+              NAMEREG sA, ADDRLOW
+              NAMEREG sB, ADDRHIGH
+              NAMEREG s9, RXREG
+              NAMEREG s8, SPI_HIGH
+              NAMEREG s7, SPI_LOW
+              NAMEREG s6, SPI_DATA
+              NAMEREG s5, LEDCOUNT
+              NAMEREG s4, BUFPTR
+              ;; input ports
+              CONSTANT UART_STATUS_PORT, 00000000'b
+              CONSTANT UART_RX_PORT, 00000001'b
+              ;; constant out ports
+              CONSTANT UART_TX_RESET_PORT, 0F
+              ;; output ports
+              CONSTANT UART_TX_PORT, 10000000'b
+              CONSTANT LED_PORT, 01000000'b
+              CONSTANT SPI_PORT, 11000000'b
+              CONSTANT START0, 00
+              CONSTANT START1, 01
+              CONSTANT START2, 02
+              CONSTANT START3, 03
+              CONSTANT START4, 04
+              CONSTANT START5, 05
+              CONSTANT START6, 06
+              CONSTANT START7, 07
+              CONSTANT START8, 08
+              CONSTANT START9, 09
+              CONSTANT START10, 0A
+              CONSTANT START11, 0B
+              CONSTANT START12, 0C
+              CONSTANT START13, 0D
+              CONSTANT START14, 0E
+              CONSTANT START15, 0F
+              CONSTANT STOP0, 10
+              CONSTANT STOP1, 11
+              CONSTANT STOP2, 12
+              CONSTANT STOP3, 13
+              CONSTANT STOP4, 14
+              CONSTANT STOP5, 15
+              CONSTANT STOP6, 16
+              CONSTANT STOP7, 17
+              CONSTANT STOP8, 18
+              CONSTANT STOP9, 19
+              CONSTANT STOP10, 1A
+              CONSTANT STOP11, 1B
+              CONSTANT STOP12, 1C
+              CONSTANT STOP13, 1D
+              CONSTANT STOP14, 1E
+              CONSTANT STOP15, 1F
+              CONSTANT INITPORT, 0F
+              ;; spi bits
+              CONSTANT spi_clk, 00000001'b          ;   spi_clk - bit0 (SPI_output_por0t)
+              CONSTANT spi_cs, 00000010'b           ;  spi_cs - bit1 (SPI_output_port)
+              CONSTANT spi_mosi, 10000000'b         ;  spi_mosi - bit7 (SPI_output_port)
+              ;; status signals
+              CONSTANT UART_TX_FULL, 00000100'b
+              CONSTANT UART_RX_READY, 00001000'b
+              ;; constants
+              OUTPUTK FF, UART_TX_RESET_PORT
+              OUTPUTK 00, UART_TX_RESET_PORT
+              LOAD ADDRHIGH, dean'upper
+              LOAD ADDRLOW, dean'lower
+              CALL send_string
+              LOAD SPI_HIGH, 08
+              LOAD SPI_LOW, 00
+              CALL send_spi
+              LOAD SPI_HIGH, 13
+              LOAD SPI_LOW, 33
+              CALL send_spi
+              LOAD SPI_HIGH, 2F
+              LOAD SPI_LOW, FF
+              CALL send_spi
+              LOAD SPI_HIGH, 3F
+              LOAD SPI_LOW, FF
+              CALL send_spi
+              LOAD LEDCOUNT, 00
+   STARTLOOP: OUTPUT LEDCOUNT, LED_PORT
+              INPUT s1, UART_STATUS_PORT
+              TEST s1, UART_RX_READY
+              JUMP NC, STARTLOOP
+              INPUT s0, UART_RX_PORT
+              LOAD LEDCOUNT, s0
+              CALL send_to_UART
+              JUMP STARTLOOP
+      sdelay: LOAD COUNTER1, 10
+              JUMP DLOOP
+       DLOOP: SUB COUNTER1, 01
+              JUMP NZ, DLOOP
+              RETURN 
+send_to_UART: INPUT s1, UART_STATUS_PORT
+              TEST s1, UART_TX_FULL
+              JUMP NZ, send_to_UART
+              OUTPUT s0, UART_TX_PORT
+              RETURN 
+ send_string: CALL@ (ADDRHIGH, ADDRLOW)
+              CALL send_to_UART
+              COMPARE s0, 0D
+              RETURN Z
+              ADD ADDRLOW, 01
+              ADDCY ADDRHIGH, 00
+              JUMP send_string
+              STRING dean$, "Hello, Dean!"
+        dean: LOAD&RETURN s0, dean$
+              LOAD&RETURN s0, 0A
+              LOAD&RETURN s0, 0D
+              STRING error$, "Error, invalid input."
+       error: LOAD&RETURN s0, error$
+              LOAD&RETURN s0, 0A
+              LOAD&RETURN s0, 0D
+   next_line: LOAD s0, 0A
+              OUTPUT s0, UART_TX_PORT
+              LOAD s0, 0D
+              OUTPUT s0, UART_TX_PORT
+              RETURN 
+   error_msg: LOAD ADDRHIGH, error'upper
+              LOAD ADDRLOW, error'lower
+              CALL send_string
+              RETURN 
+  upper_case: COMPARE RXREG, "a"                    ;eliminate character codes below 'a' (61 hex)
+              RETURN C
+              COMPARE RXREG, 7B                     ;eliminate character codes above 'z' (7A hex)
+              RETURN NC
+              AND RXREG, 11011111'b                 ;force bit5 Low to convert to upper case
+              RETURN 
+ASCII_to_hex: ADD RXREG, B9                         ;test for above ASCII code 46 ('F')
+              RETURN C
+              SUB RXREG, E9                         ;normalise 0 to 9 with A-F in 11 to 16 hex
+              RETURN C                              ;reject below ASCII code 30 ('0')
+              SUB RXREG, 11                         ;isolate A-F down to 00 to 05 hex
+              JUMP NC, ASCII_letter
+              ADD RXREG, 07                         ;test for above ASCII code 46 ('F')
+              RETURN C
+              SUB RXREG, F6                         ;convert to range 00 to 09
+              RETURN 
+ASCII_letter: ADD RXREG, 0A                         ;convert to range 0A to 0F
+              RETURN 
+              ;;;;;;;;;;;;;;;;;;;;;;;;;;;; SPI
+    send_spi: LOAD SPI_BIT_COUNT, 10
+    next_bit: LOAD SPI_DATA, SPI_HIGH
+              AND SPI_DATA, spi_mosi
+              OUTPUT SPI_DATA, SPI_PORT
+              SL0 SPI_LOW
+              SLA SPI_HIGH
+              CALL clock_pulse
+              SUB SPI_BIT_COUNT, 01
+              JUMP NZ, next_bit
+              LOAD SPI_DATA, spi_cs
+              OR SPI_DATA, spi_clk
+              OUTPUT SPI_DATA, SPI_PORT
+              CALL sdelay
+              RETURN 
+ clock_pulse: OR SPI_DATA, spi_clk
+              OUTPUT SPI_DATA, SPI_PORT
+              AND SPI_DATA, ~spi_clk
+              CALL sdelay
+              OUTPUT SPI_DATA, SPI_PORT
+              RETURN 

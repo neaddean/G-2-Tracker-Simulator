@@ -1,0 +1,34 @@
+                  ;;; ============================================================================
+                  ;;; Register map
+                  ;;; ============================================================================
+                  ;;; | name             | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+                  ;;; | CMD_period       | x  | x  |    |    | x  |    |    |    |    |    |    |    |
+                  ;;; | CMD_pulse_period | x  | x  |    |    | x  |    |    |    |    |    |    |    |
+      CMD_period: 
+                  LOAD s4, 40         ;store address
+                  LOAD s1, CLI_WORD_1 ;pointer
+                  FETCH s0, (s1)      ;fetch lsb of channel period
+                  OUTPUT s0, (s4)     ;output lsb
+                  ADD s4, 01          ;next byte of address
+                  ADD s1, 01          ;next byte of channel period
+                  FETCH s0, (s1)
+                  OUTPUT s0, (s4)     ;middle byte
+                  ADD s4, 01
+                  ADD s1, 01          ;msb
+                  FETCH s0, (s1)
+                  OUTPUT s0, (s4)     ;msb
+                  RETURN 
+CMD_pulse_period: 
+                  LOAD s4, 44         ;store address
+                  LOAD s1, CLI_WORD_1 ;pointer
+                  FETCH s0, (s1)      ;fetch lsb of channel period
+                  OUTPUT s0, (s4)     ;output lsb
+                  ADD s4, 01          ;next byte of address
+                  ADD s1, 01          ;next byte of channel period
+                  FETCH s0, (s1)
+                  OUTPUT s0, (s4)     ;middle byte
+                  ADD s4, 01
+                  ADD s1, 01          ;msb
+                  FETCH s0, (s1)
+                  OUTPUT s0, (s4)     ;msb
+                  RETURN 

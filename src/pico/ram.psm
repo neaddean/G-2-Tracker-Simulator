@@ -1,0 +1,137 @@
+;;; ============================================================================
+;;; CONSTANTS
+;;; ============================================================================
+
+
+;;; RAM Ports
+CONSTANT RAM_CTRL_OUT,   02	; control signals for the ram (described below)
+CONSTANT RAM_CTRL_IN,    02	; ram sequence "done" status
+CONSTANT RAM_BUS_OUT,    03	; write a byte out to a addr/data register (described below)
+CONSTANT RAM_BUS_IN,	 03	; read a byte in (data)
+	
+;;; RAM CTRL bits
+	;; r/w
+CONSTANT RAM_START,			00000001'b ; start RAM sequence
+CONSTANT RAM_WRITE_ENABLE,		00000010'b ; write/read (0 for write)
+CONSTANT RAM_DATA_ADDR_SEL,		00000100'b ; BUS_OUT to addr or data
+CONSTANT RAM_DATA_ADDR_B0,		00001000'b ; LSB of data/addr sel
+CONSTANT RAM_DATA_ADDR_B1,		00010000'b ; MSB of data/addr sel
+	;; r only
+CONSTANT RAM_DONE,                      10000000'b ; last sequence done
+	
+;;; ============================================================================
+;;; RAM Tools
+;;; ============================================================================
+
+;;; wait for ram sequence to be done
+	;; uses s0
+ram_wait:
+		INPUT s0, RAM_CTRL_IN  	; check that the RAM is done doing things
+		TEST s0, RAM_DONE      
+		JUMP Z, ram_wait	; if we are not done, keep checking	
+		RETURN
+;;; read the current ram ctrl register
+	;; return this in s1
+	;; uses s0
+ram_ctrl_read:
+		INPUT s1, RAM_CTRL_IN
+		RETURN
+	
+;;; Start a write sequence using the current values on the addr and data busses
+ram_write:	
+		CALL ram_wait	; wait for the last ram sequence to be done
+		LOAD s0, RAM_START 	;add the start sequence to the control byte
+					;WE is already 0
+		OUTPUT s0, RAM_CTRL_OUT ;start the write sequence
+		XOR s0, RAM_START	; drop the RAM START bit
+		OUTPUT s0, RAM_CTRL_OUT ;
+		RETURN 			; we don't wait for done to be true
+
+;;; Start a read sequence and return the data in bytes s2,s1
+ram_read:	
+		CALL ram_wait	; wait for the last ram sequence to be done
+	;; start the read sequence (and leave the system set to read back byte zero
+		LOAD s0, RAM_START
+		OR s0, RAM_WRITE_ENABLE
+		OUTPUT s0, RAM_CTRL_OUT
+		XOR s0,RAM_START
+		OUTPUT s0, RAM_CTRL_OUT
+	;; wait for read to finish
+		CALL ram_wait
+		INPUT s1, RAM_BUS_IN 	; read byte 0
+		LOAD s0, RAM_DATA_ADDR_B0 ; select byte 1
+		OUTPUT s0, RAM_CTRL_OUT
+		INPUT s2, RAM_BUS_IN 	; read byte 1	
+		RETURN	
+;;; Update addr/data bus with byte from s1 and data/addr sel in s2
+	;; ex s1=0xFF s2=0x02 loads 0xFF to RAM data MSByte
+ram_load_generic:
+		CALL ram_wait	; wait for the last ram sequence to be done
+	
+		LOAD s0, s2		; build ctrl register for this write
+;		SL0 s0
+;		SL0 s0
+		OUTPUT s0, RAM_CTRL_OUT	
+
+		OUTPUT s1, RAM_BUS_OUT 	; write data to the set register
+
+;		LOAD s0, RAM_START 	; build start command
+;					; write already in the correct state
+;
+;		OUTPUT s0, RAM_BUS_OUT
+		RETURN
+
+;;; set ram address with s1 being the address byte, s2 selecting 3 = 23-16, 2 = 15-8, 1 = 7-0
+ram_load_addr:
+		SL1 s2			; set the addr sel bit
+		CALL ram_load_generic 	; write the byte in s1
+		SR0 s2			; return s2 to its original state (minus MSB)
+		RETURN
+
+;;; set full ram address with s3,s2,s1 being bits (23-16),(15-8),(7-0)
+	;; s1-s3 will be lost
+	;; uses s4
+ram_load_full_addr:
+		LOAD s4,s2	       ; save bits 15-8 because we need s2
+	;; write byte 0
+		LOAD s2,RAM_DATA_ADDR_SEL
+		CALL ram_load_generic ; write s1 to addr bits 7-0
+	;; write byte 1
+		LOAD s1,s4		; load bits 15-8 into s1
+		LOAD s2,RAM_DATA_ADDR_SEL
+		OR s2, RAM_DATA_ADDR_B0
+		CALL ram_load_generic
+	;; write byte 2
+		LOAD s1,s3
+		LOAD s2,RAM_DATA_ADDR_SEL
+		OR s2, RAM_DATA_ADDR_B1
+		CALL ram_load_generic
+	RETURN
+
+;;; set ram data with s1 being the data byte and s2 selecting which data byte to write
+ram_load_data:
+		SL0 s2			; set the addr sel bit to zero for data
+		CALL ram_load_generic 	; write the byte in s1
+		SR0 s2			; return s2 to its original state (minus MSB)
+		RETURN
+
+;;; set full ram data with s2,s1 being bits (15-8),(7-0)
+	;; s1-s2 will be lost
+	;; uses s3
+ram_load_full_data:
+		LOAD s3,s2	       ; save bits 15-8 because we need s2
+	;; write byte 0
+		LOAD s2,00	      ; set s2 to write this byte
+		CALL ram_load_generic ; write s1 to addr bits 7-0
+	;; write byte 1
+		LOAD s1,s3		; load bits 15-8 into s1
+		LOAD s2,RAM_DATA_ADDR_B0
+		CALL ram_load_generic
+	RETURN
+	
+
+
+
+
+	
+	

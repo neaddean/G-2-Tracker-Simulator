@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="C:/Users/ejbarnes/xilinx_work_26052013/c5_sender/c5_sender_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="c5_sender" />
+            <top_module name="numeric_std" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_unsigned" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="17" />
+   <wvobject fp_name="/c5_sender/clk40" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk40</obj_property>
+      <obj_property name="ObjectShortName">clk40</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/c5" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">c5</obj_property>
+      <obj_property name="ObjectShortName">c5</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/pulsetype/c5" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">c5</obj_property>
+      <obj_property name="ObjectShortName">c5</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/pulsetype/ctr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ctr[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ctr[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/pulsetype/trig" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">trig</obj_property>
+      <obj_property name="ObjectShortName">trig</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/pulsetype/yout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">yout[3:0]</obj_property>
+      <obj_property name="ObjectShortName">yout[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/funcgenerator/a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">a[2:0]</obj_property>
+      <obj_property name="ObjectShortName">a[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/funcgenerator/inputs" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">inputs[7:0]</obj_property>
+      <obj_property name="ObjectShortName">inputs[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/funcgenerator/outputs" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">outputs[1:0]</obj_property>
+      <obj_property name="ObjectShortName">outputs[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/counting/count" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">count[2:0]</obj_property>
+      <obj_property name="ObjectShortName">count[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/funcgenerator/yout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">yout[3:0]</obj_property>
+      <obj_property name="ObjectShortName">yout[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/counting/count_sig" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">count_sig[4:0]</obj_property>
+      <obj_property name="ObjectShortName">count_sig[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/counting/count" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">count[2:0]</obj_property>
+      <obj_property name="ObjectShortName">count[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/b" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">b[3:0]</obj_property>
+      <obj_property name="ObjectShortName">b[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/rst_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/cd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cd</obj_property>
+      <obj_property name="ObjectShortName">cd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/c5_sender/counting/frame" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">frame</obj_property>
+      <obj_property name="ObjectShortName">frame</obj_property>
+   </wvobject>
+</wave_config>

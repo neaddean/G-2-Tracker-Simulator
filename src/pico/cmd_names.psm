@@ -1,0 +1,155 @@
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name       | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | cmds       |    | x  |    |    |    |    |    |    |    |    |    |    |
+
+
+INCLUDE "cmds_C.psm"
+INCLUDE "cmds_D.psm"
+INCLUDE "cmds_F.psm"
+INCLUDE "cmds_G.psm"
+INCLUDE "cmds_H.psm"
+INCLUDE "cmds_M.psm"
+INCLUDE "cmds_P.psm"
+INCLUDE "cmds_R.psm"
+INCLUDE "cmds_S.psm"	
+INCLUDE "cmds_T.psm"
+INCLUDE "cmds_V.psm"
+
+STRING multiarg$, "multiarg"
+STRING memdump$, "memdump"
+STRING reset$, "reset"
+STRING version$, "version"
+STRING sys$, "sys"
+STRING help$, "help"
+
+	
+STRING dac$, "d"
+STRING channel$, "c"
+STRING fire$, "s"
+STRING rapid_on$, "n"
+STRING rapid_off$, "m"
+;; STRING pulse_help msg$, "h"
+STRING cont_start$, "a"
+STRING cont_stop$, "z"
+STRING period$, "p"
+STRING pulse_period$, "t"
+
+STRING GEN_C5$, "CC"
+STRING GEN_D5$, "CD"
+STRING FIFO_flags$, "F"
+STRING FIFO_read$, "D"
+STRING FIFO_reset$, "R"
+STRING TDC_loopback$, "M"
+	
+	
+cmds:
+	;; CMD_multiarg (multiarg)
+	LOAD&RETURN s1, multiarg$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_multiarg'upper
+	LOAD&RETURN s1, CMD_multiarg'lower
+	;; CMD_Mem_dump (memdump)
+	LOAD&RETURN s1, memdump$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_Mem_dump'upper
+	LOAD&RETURN s1, CMD_Mem_dump'lower
+	;; CMD_reset (reset)
+	LOAD&RETURN s1, reset$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_reset'upper
+	LOAD&RETURN s1, CMD_reset'lower
+	;; CMD_Version (version)
+	LOAD&RETURN s1, version$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_version'upper
+	LOAD&RETURN s1, CMD_version'lower
+	;; CMD_sys (sys)
+	LOAD&RETURN s1, sys$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_sys'upper
+	LOAD&RETURN s1, CMD_sys'lower
+	;; CMD_help (help)
+	LOAD&RETURN s1, help$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_help'upper
+	LOAD&RETURN s1, CMD_help'lower
+	;; CMD_dac
+	LOAD&RETURN s1, dac$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_dac'upper
+	LOAD&RETURN s1, CMD_dac'lower
+	;; CMD_channel
+	LOAD&RETURN s1, channel$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_channel'upper
+	LOAD&RETURN s1, CMD_channel'lower
+	;; CMD_fire
+	LOAD&RETURN s1, fire$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_fire'upper
+	LOAD&RETURN s1, CMD_fire'lower
+	;; CMD_rapid_on
+	LOAD&RETURN s1, rapid_on$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_rapid_on'upper
+	LOAD&RETURN s1, CMD_rapid_on'lower
+	;; CMD_rapid_off
+	LOAD&RETURN s1, rapid_off$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_rapid_off'upper
+	LOAD&RETURN s1, CMD_rapid_off'lower
+	;; CMD_cont_start
+	LOAD&RETURN s1, cont_start$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_cont_start'upper
+	LOAD&RETURN s1, CMD_cont_start'lower
+	;; CMD_cont_stop
+	LOAD&RETURN s1, cont_stop$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_cont_stop'upper
+	LOAD&RETURN s1, CMD_cont_stop'lower
+	;; CMD_period
+	LOAD&RETURN s1, period$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_period'upper
+	LOAD&RETURN s1, CMD_period'lower
+	;; CMD_pulse_period
+	LOAD&RETURN s1, pulse_period$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_pulse_period'upper
+	LOAD&RETURN s1, CMD_pulse_period'lower
+
+	;; CMD_GEN_C5
+	LOAD&RETURN s1, GEN_C5$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_GEN_C5'upper
+	LOAD&RETURN s1, CMD_GEN_C5'lower
+	;; CMD_GEN_D5
+	LOAD&RETURN s1, GEN_D5$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_GEN_D5'upper
+	LOAD&RETURN s1, CMD_GEN_D5'lower
+	;; CMD_FIFO_flags
+	LOAD&RETURN s1, FIFO_flags$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_FIFO_flags'upper
+	LOAD&RETURN s1, CMD_FIFO_flags'lower
+	;; CMD_FIFO_read
+	LOAD&RETURN s1, FIFO_read$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_FIFO_read'upper
+	LOAD&RETURN s1, CMD_FIFO_read'lower
+	;; CMD_FIFO_reset
+	LOAD&RETURN s1, FIFO_reset$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_FIFO_reset'upper
+	LOAD&RETURN s1, CMD_FIFO_reset'lower
+	;; CMD_TDC_loopback
+	LOAD&RETURN s1, TDC_loopback$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_TDC_loopback'upper
+	LOAD&RETURN s1, CMD_TDC_loopback'lower
+
+	LOAD&RETURN s1, FF	; end of commands string
