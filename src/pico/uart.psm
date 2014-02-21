@@ -41,8 +41,8 @@ uart_output_wait:
 ;;; wait for UART input
 uart_input_wait:	
 	INPUT s0, UART_STATUS
-	;; INPUT 	sF, FIFO_flags
-	;; OUTPUT	sF, LED_PORT
+	INPUT 	sF, FIFO_flags
+	OUTPUT	sF, LED_PORT
 	TEST s0, UART_STATUS_Rx_data_present 		; check if the rx FIFO is full
 	RETURN C
 	JUMP uart_input_wait

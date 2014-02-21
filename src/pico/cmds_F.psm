@@ -20,11 +20,6 @@ CMD_FIFO_flags:
 
 CMD_FIFO_read:
 	FETCH	s0, CLI_COUNT
-
-	LOAD	sF, FF
-	OUTPUT	sF, LED_PORT
-	CALL	util_print_hex_byte
-	CALL	util_print_EOL
 	
 	COMPARE	s0, 01
 	JUMP	Z, FIFO_read_len	

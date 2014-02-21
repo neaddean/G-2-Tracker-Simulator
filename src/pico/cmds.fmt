@@ -209,6 +209,8 @@ cmd_parse_tokens_next_token:
                              ADD s4, 01
      cmd_parse_tokens_parse: 
                              SUB s6, 02                           ; move back a byte of data in the buffer
+                             JUMP C, cmd_parse_tokens_next_token  ; catch bug for 1 char command
+                             ; the SUB 02 instruction would do a buffer underflow on this
                              COMPARE s6, s5                       ; check that we have a full byte to parse
                              JUMP C, cmd_parse_nibble
                              ;; parse a byte
