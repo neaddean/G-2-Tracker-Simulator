@@ -6,7 +6,7 @@
 -- Author     :   <dean@weber>
 -- Company    : 
 -- Created    : 2013-11-06
--- Last update: 2014-02-19
+-- Last update: 2014-02-24
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -33,6 +33,8 @@ library unisim;
 use unisim.vcomponents.all;
 use work.common.all;
 use IEEE.numeric_std.all;
+use ieee.std_logic_signed."+";
+use ieee.std_logic_signed."=";
 use IEEE.std_logic_misc.all;
 --
 -------------------------------------------------------------------------------------------
@@ -259,7 +261,7 @@ begin
   -- generate 15-clock reset synchronized to 125MHz on
   -- external reset (BTND button) or USB (d_fifo_clr)
   --
-  process (clk40) is
+  process (clk40, clk125) is
   begin  -- process
     if clk125'event and clk125 = '1' then  -- rising clock edge
       rst_req <= d_fifo_clr;

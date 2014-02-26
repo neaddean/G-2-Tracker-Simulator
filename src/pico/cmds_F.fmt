@@ -32,6 +32,7 @@ do_D_init_read:
                 LOAD s0, 3C                ; write K.28.1 word that is missed by the FIFO
                 CALL util_print_hex_byte
      do_D_read: 
+                CALL Fdelay
                 INPUT s0, FIFO_flags
                 AND s0, 01
                 JUMP NZ, do_D_empty        ;go if empty
@@ -54,4 +55,10 @@ CMD_FIFO_reset:
                 OUTPUT s0, RESET_fifo_port
                 LOAD sF, 00
                 OUTPUT sF, LED_PORT
+                RETURN 
+        Fdelay: 
+                LOAD sF, FF
+        FDLOOP: 
+                SUB sF, 01
+                JUMP NZ, FDLOOP
                 RETURN 

@@ -180,8 +180,8 @@ architecture arch of uart_top is
 
 begin  -- architecture arch
 
-  uart_rx_reset <= '0';                 -- turn off reset of the UART RX
-  uart_tx_reset <= '0';                 -- same for TX
+  --uart_rx_reset <= '0';                 -- turn off reset of the UART RX
+  --uart_tx_reset <= '0';                 -- same for TX
 
   tdc_loop        <= misc_ctrl(0);      -- wire up control register
   fake_tdc_length <= fake_length;       -- wire up length register
@@ -189,7 +189,7 @@ begin  -- architecture arch
   processor : kcpsm6
     generic map (hwbuild                 => X"00",
                  interrupt_vector        => X"3FF",
-                 scratch_pad_memory_size => 64)
+                 scratch_pad_memory_size => 256)
     port map(address        => address,
              instruction    => instruction,
              bram_enable    => bram_enable,
@@ -314,6 +314,23 @@ begin  -- architecture arch
   -- trigger logic for data fifo clear
   d_fifo_clr <= '1' when (write_strobe = '1') and (port_id = "11100010")
                 else '0';
+
+  constant_output_ports : process(clk125)
+  begin
+    if clk125'event and clk125 = '1' then
+      -- 'write_strobe' is used to qualify all writes to general output ports.
+      if write_strobe = '1' then
+      -- 'k_write_strobe' used to qualify all constant optimized output ports
+      elsif k_write_strobe = '1' then
+        if port_id(1 downto 0) = "00" then
+          uart_tx_reset <= out_port(0);
+          uart_rx_reset <= out_port(1);
+        end if;
+      end if;
+    end if;
+  end process constant_output_ports;
+
+
 
   -- baud rate 125MHz / (115200*16) = 68
   process (clk125) is

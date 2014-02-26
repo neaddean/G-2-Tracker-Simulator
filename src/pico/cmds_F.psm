@@ -46,7 +46,8 @@ do_D_init_read:
 	CALL	util_print_hex_byte
 	
 do_D_read:
-	INPUT	s0, FIFO_flags
+	CALL	Fdelay		
+	INPUT	s0, FIFO_flags	
 	AND	s0, 01
 	JUMP	NZ, do_D_empty 	;go if empty
 	INPUT	s0, FIFO_data
@@ -71,4 +72,11 @@ CMD_FIFO_reset:
 	OUTPUT	s0, RESET_fifo_port
 	LOAD	sF, 00
 	OUTPUT	sF, LED_PORT
+	RETURN
+
+Fdelay:
+	LOAD sF, FF
+FDLOOP:
+	SUB   sF, 01
+	JUMP  NZ, FDLOOP
 	RETURN

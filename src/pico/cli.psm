@@ -100,6 +100,17 @@ str_startup:
 	LOAD&RETURN s1, startup$
 	LOAD&RETURN s1, 00
 hard_reset:
+
+	LOAD	sF, FF
+	LOAD	sE, FF
+	LOAD	sB, FF
+
+start_delay:
+	SUB 	sF, 01
+	SUBCY	sE, 00
+	SUBCY	sB, 00
+	JUMP	NZ, start_delay
+	
 	CALL soft_reset
 	;; reset UART
 	OUTPUTK 03, UART_OUTPUT
