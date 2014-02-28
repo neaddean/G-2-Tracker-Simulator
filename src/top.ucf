@@ -46,8 +46,15 @@
 #
 
 
-NET "clk125" TNM_NET = "clk125";
-TIMESPEC TS_125MHZ_clk = PERIOD "clk125" 8.0ns HIGH 50%;
+NET "clk125" TNM_NET = 125_clk;
+TIMESPEC TS_125_clk = PERIOD "clk125" 8.0ns HIGH 50%;
+
+Net "clk100_in" TNM_NET = sys_clk_pin;
+TIMESPEC TS_sys_clk_pin = PERIOD sys_clk_pin 100000 kHz;
+
+Net "clk40" TNM_NET = 40_clk;
+TIMESPEC TS_40_clk = PERIOD sys_clk_pin 40000 kHz;
+
 #
 #
 # 200MHz Differential Clock.

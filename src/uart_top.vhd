@@ -272,15 +272,13 @@ begin  -- architecture arch
             when "0001001" => do_once  <= out_port(0);
             when "0001000" => initiate <= out_port(0);
                               TP8 <= out_port(0);
-            when "1000010" => cperiod(2)               <= out_port;
-            when "1000001" => cperiod(1)               <= out_port;
-            when "1000000" => cperiod(0)               <= out_port;
-            when "1000110" => pulse_period(2)          <= out_port;
-            when "1000101" => pulse_period(1)          <= out_port;
-            when "1000100" => pulse_period(0)          <= out_port;
-            when "0100000" => misc_ctrl                <= out_port;
-            when "0100001" => fake_length(7 downto 0)  <= out_port;
-            when "0100010" => fake_length(11 downto 8) <= out_port(3 downto 0);
+            when "1000010" => cperiod(2)      <= out_port;
+            when "1000001" => cperiod(1)      <= out_port;
+            when "1000000" => cperiod(0)      <= out_port;
+            when "1000110" => pulse_period(2) <= out_port;
+            when "1000101" => pulse_period(1) <= out_port;
+            when "1000100" => pulse_period(0) <= out_port;
+            when "0100000" => misc_ctrl       <= out_port;
             when others    => null;
           end case;
         elsif port_id(7) = '1' then
@@ -304,15 +302,11 @@ begin  -- architecture arch
 
   -- write logic for C5 interface
   c5_output_data  <= out_port(4 downto 0);
-  c5_write_strobe <= '1' when (write_strobe = '1') and (port_id = "11100000")
+  c5_write_strobe <= '1' when (write_strobe = '1') and (port_id = "01100000")
                      else '0';
 
-  -- trigger logic for fake TDC
-  fake_tdc_trig <= '1' when (write_strobe = '1') and (port_id = "111000001")
-                   else '0';
-
   -- trigger logic for data fifo clear
-  d_fifo_clr <= '1' when (write_strobe = '1') and (port_id = "11100010")
+  d_fifo_clr <= '1' when (write_strobe = '1') and (port_id = "01100010")
                 else '0';
 
   constant_output_ports : process(clk125)

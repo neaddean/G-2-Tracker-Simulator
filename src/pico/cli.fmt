@@ -46,19 +46,19 @@
                      ;; constant out ports
                      CONSTANT UART_TX_RESET_PORT, 00
                      ;; output ports
-                     CONSTANT INITPORT, 00001000'b
-                     CONSTANT ONCEPORT, 00001001'b
                      CONSTANT LED_PORT, 00000010'b
                      CONSTANT SPI_PORT, 00000011'b
-                     CONSTANT PERIOD_PORT0, 01000000'b
-                     CONSTANT PERIOD_PORT1, 01000001'b
-                     CONSTANT PERIOD_PORT2, 01000010'b
-                     CONSTANT PULSE_PERIOD_PORT0, 01000100'b
-                     CONSTANT PULSE_PERIOD_PORT1, 01000101'b
-                     CONSTANT PULSE_PERIOD_PORT2, 01000110'b
-                     CONSTANT CTRL_port, 00100000'b
-                     CONSTANT C5_data, 11100000'b
-                     CONSTANT RESET_fifo_port, 11100010'b
+                     CONSTANT ONCEPORT, 00000100'b
+                     CONSTANT INITPORT, 00000101'b
+                     CONSTANT PERIOD_PORT2, 00000110'b
+                     CONSTANT PERIOD_PORT1, 00000111'b
+                     CONSTANT PERIOD_PORT0, 00001000'b
+                     CONSTANT PULSE_PERIOD_PORT2, 00001001'b
+                     CONSTANT PULSE_PERIOD_PORT1, 00001010'b
+                     CONSTANT PULSE_PERIOD_PORT0, 00001011'b
+                     CONSTANT CTRL_port, 00001100'b
+                     CONSTANT C5_data, 00100000'b
+                     CONSTANT RESET_fifo_port, 00100001'b
                      ;; spi bits
                      CONSTANT spi_clk, 00000001'b            ;   spi_clk - bit0 (SPI_output_por0t)
                      CONSTANT spi_cs, 00000010'b             ;  spi_cs - bit1 (SPI_output_port)
