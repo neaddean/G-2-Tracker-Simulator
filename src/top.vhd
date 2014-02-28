@@ -6,7 +6,7 @@
 -- Author     :   <dean@weber>
 -- Company    : 
 -- Created    : 2013-11-06
--- Last update: 2014-02-24
+-- Last update: 2014-02-28
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -23,13 +23,9 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 --use IEEE.STD_LOGIC_ARITH.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.all;
---
---
--- The Unisim Library is used to define Xilinx primitives. It is also used during
--- simulation. The source can be viewed at %XILINX%\vhdl\src\unisims\unisim_VCOMP.vhd
---
-library unisim;
+--use IEEE.STD_LOGIC_UNSIGNED.all;
+
+library unisim;                         
 use unisim.vcomponents.all;
 use work.common.all;
 use IEEE.numeric_std.all;
@@ -165,7 +161,6 @@ architecture Behavioral of top is
   signal serial_mux  : std_logic;
   signal serial_reg  : std_logic;
   signal serial_neg  : std_logic;
-  signal tdc_sim_out : std_logic;
   signal tdc_loop    : std_logic;
 
   signal d_fifo_k : std_logic;
@@ -246,11 +241,11 @@ begin
       OB => c5_out_n);
 
   -- multiplexor for TDC loop-back
-  with tdc_loop select
-    serial_mux <=
-    tdc_sim_out when '1',
-    tdc_in_s    when others;
-
+  --with tdc_loop select
+  --  serial_mux <=
+  --  tdc_sim_out when '1',
+  --  tdc_in_s    when others;
+serial_mux <= tdc_in_s;
   -- LVDS input buffer for TDC 8b10b input
   lvds1 : IBUFDS_LVDS_33
     port map (
@@ -261,7 +256,7 @@ begin
   -- generate 15-clock reset synchronized to 125MHz on
   -- external reset (BTND button) or USB (d_fifo_clr)
   --
-  process (clk40, clk125) is
+  process (clk125) is
   begin  -- process
     if clk125'event and clk125 = '1' then  -- rising clock edge
       rst_req <= d_fifo_clr;

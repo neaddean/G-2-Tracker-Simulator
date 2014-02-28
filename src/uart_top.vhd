@@ -281,7 +281,7 @@ begin  -- architecture arch
             when "0100000" => misc_ctrl                <= out_port;
             when "0100001" => fake_length(7 downto 0)  <= out_port;
             when "0100010" => fake_length(11 downto 8) <= out_port(3 downto 0);
-            when others    => out_port                 <= "XXXXXXXX";
+            when others    => null;
           end case;
         elsif port_id(7) = '1' then
           start_time(conv_integer(port_id(5 downto 2)), conv_integer(port_id(1 downto 0)))
